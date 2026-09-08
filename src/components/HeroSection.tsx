@@ -1,3 +1,5 @@
+import { animatedSpriteUrl } from "../utils/sprite";
+
 interface HeroStats {
   regions: number;
   leaders: number;
@@ -12,6 +14,47 @@ const ROUTE = [
   { name: "Johto", heal: false },
   { name: "Kanto", heal: true },
 ];
+
+const SHOWCASE_POKEMON = [
+  "Charizard",
+  "Gengar",
+  "Garchomp",
+  "Blaziken",
+  "Gyarados",
+  "Lucario",
+];
+
+const HeroVisual = () => {
+  return (
+    <div className="relative rounded-2xl border border-ink-700 bg-ink-900/70 p-6">
+      <div
+        className="pointer-events-none absolute -inset-10 -z-10 rounded-full bg-violet-600/20 blur-3xl"
+        aria-hidden
+      />
+      <p className="mb-4 text-xs font-medium uppercase tracking-wide text-mist-500">
+        Equipo listo para cualquier liga
+      </p>
+      <div className="grid grid-cols-3 gap-3">
+        {SHOWCASE_POKEMON.map((name, i) => (
+          <div
+            key={name}
+            className={`flex aspect-square items-center justify-center rounded-xl border border-ink-700 bg-ink-850 ${
+              i % 2 === 0 ? "translate-y-0" : "translate-y-3"
+            }`}
+          >
+            <img
+              src={animatedSpriteUrl(name)}
+              alt={name}
+              className="h-12 w-12 object-contain sm:h-14 sm:w-14"
+              style={{ imageRendering: "pixelated" }}
+              loading="lazy"
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 export const HeroSection = ({ stats }: { stats: HeroStats }) => {
   return (
@@ -45,30 +88,7 @@ export const HeroSection = ({ stats }: { stats: HeroStats }) => {
           </div>
         </div>
 
-        <div id="rutas" className="rounded-2xl border border-ink-700 bg-ink-900/70 p-5">
-          <p className="mb-4 text-xs font-medium uppercase tracking-wide text-mist-500">
-            Ruta recomendada
-          </p>
-          <div className="flex flex-wrap items-center gap-x-1 gap-y-3">
-            {ROUTE.map((stop, i) => (
-              <div key={stop.name} className="flex items-center gap-1">
-                <div className="flex flex-col items-center gap-1.5 rounded-xl border border-ink-700 bg-ink-850 px-3 py-2">
-                  <span className="text-sm font-semibold text-mist-100">{stop.name}</span>
-                  {stop.heal && (
-                    <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-medium text-amber-300">
-                      Centro Pokémon
-                    </span>
-                  )}
-                </div>
-                {i < ROUTE.length - 1 && (
-                  <span className="px-1 text-violet-500" aria-hidden>
-                    →
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <HeroVisual />
       </div>
 
       <dl className="mt-12 grid grid-cols-2 gap-6 border-t border-ink-700 pt-8 sm:grid-cols-4">
@@ -88,6 +108,31 @@ export const HeroSection = ({ stats }: { stats: HeroStats }) => {
           </div>
         ))}
       </dl>
+
+      <div id="rutas" className="mt-8 rounded-2xl border border-ink-700 bg-ink-900/70 p-5 sm:p-6">
+        <p className="mb-4 text-xs font-medium uppercase tracking-wide text-mist-500">
+          Ruta recomendada
+        </p>
+        <div className="flex flex-wrap items-center gap-x-1 gap-y-3">
+          {ROUTE.map((stop, i) => (
+            <div key={stop.name} className="flex items-center gap-1">
+              <div className="flex flex-col items-center gap-1.5 rounded-xl border border-ink-700 bg-ink-850 px-4 py-2.5">
+                <span className="text-sm font-semibold text-mist-100">{stop.name}</span>
+                {stop.heal && (
+                  <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-medium text-amber-300">
+                    Centro Pokémon
+                  </span>
+                )}
+              </div>
+              {i < ROUTE.length - 1 && (
+                <span className="px-1 text-violet-500" aria-hidden>
+                  →
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 };
