@@ -16,7 +16,11 @@ import { LeaderCard } from "./LeaderCard"
 import { PokemonCard } from "./PokemonCard"
 import { PokemonDetails } from "./PokemonDetails"
 import { SiteFooter } from "./SiteFooter"
-import { type StrategyId } from "../config/strategies"
+import {
+  type StrategyId,
+  type GymRerunStrategyId,
+  type RedBattleStrategyId,
+} from "../config/strategies"
 
 function countBranches(tricks: Tricks[] = []): number {
   return tricks.reduce((total, t) => total + 1 + countBranches(t.variant), 0)
@@ -31,6 +35,8 @@ export default function PokemonGuide() {
   const [regionsLoaded, setRegionsLoaded] = useState(false)
   const [loading, setLoading] = useState(true)
   const [activeStrategy, setActiveStrategy] = useState<StrategyId>("dingxianyou")
+  const [activeGymRerunStrategy, setActiveGymRerunStrategy] = useState<GymRerunStrategyId>("six-pillars")
+  const [activeRedBattleStrategy, setActiveRedBattleStrategy] = useState<RedBattleStrategyId>("jinxedboon")
 
   const detailsRef = useRef<HTMLDivElement>(null)
 
@@ -182,6 +188,10 @@ export default function PokemonGuide() {
           setExpandedLeader(null)
           setSelectedPokemon(null)
         }}
+        activeGymRerunStrategy={activeGymRerunStrategy}
+        onGymRerunStrategyChange={setActiveGymRerunStrategy}
+        activeRedBattleStrategy={activeRedBattleStrategy}
+        onRedBattleStrategyChange={setActiveRedBattleStrategy}
       />
       <HeroSection stats={stats} activeStrategy={activeStrategy} />
 
