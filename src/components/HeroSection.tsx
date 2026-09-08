@@ -56,7 +56,13 @@ const HeroVisual = () => {
   );
 };
 
-export const HeroSection = ({ stats }: { stats: HeroStats }) => {
+export const HeroSection = ({
+  stats,
+  activeStrategy,
+}: {
+  stats: HeroStats
+  activeStrategy: "dingxianyou" | "dingxianyou-2"
+}) => {
   return (
     <section id="top" className="mx-auto max-w-6xl px-4 pb-10 pt-10 sm:px-6 sm:pt-16">
       <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
@@ -72,7 +78,7 @@ export const HeroSection = ({ stats }: { stats: HeroStats }) => {
 
           <div className="mt-6 flex flex-wrap gap-3">
             <a
-              href="https://pokepast.es/e356ee22f26cf6dc"
+              href={activeStrategy === "dingxianyou-2" ? "https://pokepast.es/5f996cd37e292763" : "https://pokepast.es/e356ee22f26cf6dc"}
               target="_blank"
               rel="noreferrer"
               className="rounded-full bg-violet-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-violet-500"
