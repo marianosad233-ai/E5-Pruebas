@@ -1,0 +1,72 @@
+{
+  "id": "lanturn",
+  "name": "Lanturn",
+  "image": "/placeholder.svg?height=80&width=80",
+  "initialMove": "🥚 Amortiguador 🥚",
+  "tricks": [
+    {
+      "detail": "Si se queda --> Aguantar con boosts de SpDef + Amortiguador dos veces",
+      "variant": [
+        {
+          "detail": "Si se queda --> Teletransporte; Gengar usa Bola Sombra; ver daño",
+          "variant": [
+            {
+              "detail": "Más del 40% (Crítico 60%) --> Sacrificar a Politoed; Slowbro usa Bostezo; Teletransporte; Poliwrath +6",
+              "variant": []
+            },
+            {
+              "detail": "Menos del 35% (Crítico 52%) --> Maquinación",
+              "variant": [
+                {
+                  "detail": "Gengar no muere → derrota con Bola Sombra, sale Togekiss / Roserade → Chansey, vuelta a empezar",
+                  "variant": []
+                },
+                {
+                  "detail": "Gengar muere → Volcarona +3 (antes de empezar a barrer, PS por encima del 75%)",
+                  "variant": []
+                }
+              ]
+            },
+            {
+              "detail": "Giros inesperados → guiarse con las opciones inferiores",
+              "variant": []
+            }
+          ]
+        },
+        {
+          "detail": "Dragonite --> Encanto; sacrificar a Politoed; Poliwrath +6",
+          "variant": []
+        },
+        {
+          "detail": "Regice / Registeel --> Sacrificar a Politoed; Poliwrath +6",
+          "variant": []
+        },
+        {
+          "detail": "Milotic --> Teletransporte; enviar a Slowbro; Bostezo frente a Roserade; Volcarona +4",
+          "variant": []
+        },
+        {
+          "detail": "Empoleon --> Cambiar a Slowbro y usar Bostezo frente a Roserade; Volcarona +3; 🔔 PS por encima del 70% 🔔",
+          "variant": []
+        },
+        {
+          "detail": "Gardevoir --> Teletransporte; enviar a Slowbro; Bostezo; sacrificar a Politoed; Poliwrath +6",
+          "variant": []
+        },
+        {
+          "detail": "Roserade --> Teletransporte para ver movimiento",
+          "variant": [
+            {
+              "detail": "Movimiento Planta --> Volcarona +4",
+              "variant": []
+            },
+            {
+              "detail": "Movimiento Veneno --> Slowbro usa Bostezo; sacrificar a Politoed; Poliwrath +6",
+              "variant": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
