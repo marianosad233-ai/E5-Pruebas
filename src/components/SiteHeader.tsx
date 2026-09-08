@@ -9,7 +9,6 @@ interface SiteHeaderProps {
 
 export const SiteHeader = ({ activeStrategy, onStrategyChange }: SiteHeaderProps) => {
   const [open, setOpen] = useState(false)
-  const currentStrategy = STRATEGIES.find((strategy) => strategy.id === activeStrategy) ?? STRATEGIES[0]
 
   const selectStrategy = (strategyId: StrategyId) => {
     onStrategyChange(strategyId)

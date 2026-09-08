@@ -185,17 +185,6 @@ export default function PokemonGuide() {
       />
       <HeroSection stats={stats} activeStrategy={activeStrategy} />
 
-      {activeStrategy === "dingxianyou-2" && (
-        <div className="mx-auto -mt-2 mb-8 max-w-6xl px-4 sm:px-6">
-          <div className="rounded-2xl border border-violet-500/30 bg-violet-500/10 p-4">
-            <p className="text-sm font-semibold text-violet-200">Dingxianyou 2.0</p>
-            <p className="mt-1 text-sm text-mist-400">
-              La estructura ya está preparada para esta estrategia. Los Pokémon y las rutas de Dingxianyou 2.0 se añadirán aquí cuando tengamos sus datos.
-            </p>
-          </div>
-        </div>
-      )}
-
       <main id="guia" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
         {/* Tips */}
         <div className="mb-8 rounded-2xl border border-ink-700 bg-ink-900/60 p-4">
