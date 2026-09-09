@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react"
 import { ArrowLeft, ArrowRight, BookOpen, ExternalLink, RotateCcw, SkipForward } from "lucide-react"
+import { PokeSprite } from "./PokeSprite"
 
 interface PaletteEntry {
   name: string
@@ -189,7 +190,8 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
             <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-mist-500">Equipo de la estrategia</p>
             <div className="flex flex-wrap gap-2">
               {strategy.palette.map((entry) => (
-                <span key={entry.name} className="rounded-full border border-ink-700 bg-ink-850 px-3 py-1.5 text-xs font-semibold" style={{ color: entry.color }}>
+                <span key={entry.name} className="flex items-center gap-2 rounded-full border border-ink-700 bg-ink-850 py-1 pl-1.5 pr-3 text-xs font-semibold" style={{ color: entry.color }}>
+                  <PokeSprite name={entry.name} className="h-7 w-7" />
                   {entry.name}
                 </span>
               ))}
@@ -244,7 +246,10 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
                       <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-mist-500">Gym lead</p>
                       {currentNode.gymLead.map((lead) => (
                         <div key={`${lead.pokemon}-${lead.item}`} className="flex items-center justify-between gap-5 text-mist-200">
-                          <span className="font-semibold" style={{ color: paletteMap.get(lead.pokemon)?.color }}>{lead.pokemon}</span>
+                          <span className="flex items-center gap-2">
+                            <PokeSprite name={lead.pokemon} className="h-8 w-8" />
+                            <span className="font-semibold" style={{ color: paletteMap.get(lead.pokemon)?.color }}>{lead.pokemon}</span>
+                          </span>
                           <span className="text-xs text-mist-400">{lead.item}</span>
                         </div>
                       ))}
