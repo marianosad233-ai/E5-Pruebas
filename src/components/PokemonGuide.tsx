@@ -330,11 +330,11 @@ export default function PokemonGuide() {
         </>
       ) : activeSection === "gym" ? (
         <main id="guia" className="pt-8">
-          <StrategyGuide strategy={selectedGymStrategy} category="Gym Rerun" />
+          <StrategyGuide key={selectedGymStrategy.id} strategy={selectedGymStrategy} category="Gym Rerun" />
         </main>
       ) : (
         <main id="guia" className="pt-8">
-          <StrategyGuide strategy={selectedRedStrategy} category="Red Battle" />
+          <StrategyGuide key={selectedRedStrategy.id} strategy={selectedRedStrategy} category="Red Battle" />
         </main>
       )}
 
