@@ -16,6 +16,12 @@ import { LeaderCard } from "./LeaderCard"
 import { PokemonCard } from "./PokemonCard"
 import { PokemonDetails } from "./PokemonDetails"
 import { SiteFooter } from "./SiteFooter"
+import StrategyGuide from "./StrategyGuide"
+import sixPillars from "../data/strategies/gym-rerun/6pillars_basic.json"
+import sevenHells from "../data/strategies/gym-rerun/lucky_girl.json"
+import jinxedBoon from "../data/strategies/red-battle/red.json"
+import colored from "../data/strategies/red-battle/red_colored.json"
+import type { StrategyData } from "./StrategyGuide"
 import {
   type StrategyId,
   type GymRerunStrategyId,
@@ -37,6 +43,7 @@ export default function PokemonGuide() {
   const [activeStrategy, setActiveStrategy] = useState<StrategyId>("dingxianyou")
   const [activeGymRerunStrategy, setActiveGymRerunStrategy] = useState<GymRerunStrategyId>("six-pillars")
   const [activeRedBattleStrategy, setActiveRedBattleStrategy] = useState<RedBattleStrategyId>("jinxedboon")
+  const [activeSection, setActiveSection] = useState<"e4" | "gym" | "red">("e4")
 
   const detailsRef = useRef<HTMLDivElement>(null)
 
@@ -178,24 +185,31 @@ export default function PokemonGuide() {
     return { regions: regions.length, leaders, pokemons, branches }
   }, [regions])
 
+  const selectedGymStrategy: StrategyData = activeGymRerunStrategy === "six-pillars" ? sixPillars : sevenHells
+  const selectedRedStrategy: StrategyData = activeRedBattleStrategy === "jinxedboon" ? jinxedBoon : colored
+  const isE4 = activeStrategy === "dingxianyou" || activeStrategy === "dingxianyou-2"
+
   return (
     <div className="min-h-screen bg-transparent text-mist-100">
       <SiteHeader
         activeStrategy={activeStrategy}
         onStrategyChange={(strategy) => {
+          setActiveSection("e4")
           setActiveStrategy(strategy)
           setExpandedRegion(null)
           setExpandedLeader(null)
           setSelectedPokemon(null)
         }}
         activeGymRerunStrategy={activeGymRerunStrategy}
-        onGymRerunStrategyChange={setActiveGymRerunStrategy}
+        onGymRerunStrategyChange={(strategy) => { setActiveSection("gym"); setActiveGymRerunStrategy(strategy) }}
         activeRedBattleStrategy={activeRedBattleStrategy}
-        onRedBattleStrategyChange={setActiveRedBattleStrategy}
+        onRedBattleStrategyChange={(strategy) => { setActiveSection("red"); setActiveRedBattleStrategy(strategy) }}
       />
-      <HeroSection stats={stats} activeStrategy={activeStrategy} />
 
-      <main id="guia" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+      {activeSection === "e4" && isE4 ? (
+        <>
+          <HeroSection stats={stats} activeStrategy={activeStrategy} />
+          <main id="guia" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
         {/* Tips */}
         <div className="mb-8 rounded-2xl border border-ink-700 bg-ink-900/60 p-4">
           <button
@@ -312,7 +326,17 @@ export default function PokemonGuide() {
             <PokemonDetails pokemon={selectedPokemon} />
           </div>
         )}
-      </main>
+          </main>
+        </>
+      ) : activeSection === "gym" ? (
+        <main id="guia" className="pt-8">
+          <StrategyGuide strategy={selectedGymStrategy} category="Gym Rerun" />
+        </main>
+      ) : (
+        <main id="guia" className="pt-8">
+          <StrategyGuide strategy={selectedRedStrategy} category="Red Battle" />
+        </main>
+      )}
 
       <SiteFooter />
     </div>
