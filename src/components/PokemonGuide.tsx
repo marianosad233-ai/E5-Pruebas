@@ -269,7 +269,7 @@ export default function PokemonGuide() {
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
             1. Elige región
           </p>
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
             {regions.map((region, i) => (
               <RegionCard
                 key={region.id}
@@ -288,7 +288,7 @@ export default function PokemonGuide() {
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
               2. Elige entrenador
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
               {currentRegion.leaders.map((leader) => (
                 <LeaderCard
                   key={leader.id}
@@ -307,7 +307,7 @@ export default function PokemonGuide() {
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
               3. Elige el Pokémon rival
             </p>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-2.5">
               {currentLeaderPokemons.map((pokemon) => (
                 <PokemonCard
                   key={pokemon.id}
