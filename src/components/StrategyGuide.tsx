@@ -225,7 +225,8 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-mist-500">{strategy.homePrompt ?? "Elige el Pokémon rival"}</p>
                 <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
                   {entries.map((entry) => (
-                    <button key={entry.nodeId} onClick={() => { setHistory([]); setCurrentNodeId(entry.nodeId) }} className={`rounded-2xl border p-3 text-left transition-all ${currentNodeId === entry.nodeId ? "border-violet-500 bg-violet-600/10" : "border-ink-700 bg-ink-900/50 hover:border-violet-500/50"}`}>
+                    <button key={entry.nodeId} onClick={() => { setHistory([]); setCurrentNodeId(entry.nodeId) }} className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition-all ${currentNodeId === entry.nodeId ? "border-violet-500 bg-violet-600/10" : "border-ink-700 bg-ink-900/50 hover:border-violet-500/50"}`}>
+                      <PokeSprite name={entry.label} className="h-9 w-9" />
                       <span className="text-sm font-semibold text-mist-100">{entry.label}</span>
                     </button>
                   ))}
