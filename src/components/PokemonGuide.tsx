@@ -185,8 +185,8 @@ export default function PokemonGuide() {
     return { regions: regions.length, leaders, pokemons, branches }
   }, [regions])
 
-  const selectedGymStrategy: StrategyData = activeGymRerunStrategy === "six-pillars" ? sixPillars : sevenHells
-  const selectedRedStrategy: StrategyData = activeRedBattleStrategy === "jinxedboon" ? jinxedBoon : colored
+  const selectedGymStrategy = (activeGymRerunStrategy === "six-pillars" ? sixPillars : sevenHells) as unknown as StrategyData
+  const selectedRedStrategy = (activeRedBattleStrategy === "jinxedboon" ? jinxedBoon : colored) as unknown as StrategyData
   const isE4 = activeStrategy === "dingxianyou" || activeStrategy === "dingxianyou-2"
 
   return (
