@@ -374,7 +374,7 @@ export default function PokemonGuide() {
             <p className="mb-2 text-xs font-medium uppercase tracking-wide text-mist-500">
               3. Elige el Pokémon rival
             </p>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(74px,1fr))] gap-2">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(74px,1fr))] gap-2 sm:grid-cols-[repeat(auto-fill,minmax(96px,1fr))] sm:gap-2.5">
               {currentLeaderPokemons.map((pokemon) => (
                 <PokemonCard
                   key={pokemon.id}
