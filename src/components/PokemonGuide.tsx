@@ -304,25 +304,27 @@ export default function PokemonGuide() {
         )}
 
         {/* Regions */}
-        <div ref={regionSectionRef} className="scroll-mt-20">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
-            1. Elige región
-          </p>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
-            {regions.map((region, i) => (
-              <RegionCard
-                key={region.id}
-                region={region}
-                index={i}
-                isExpanded={expandedRegion === region.id}
-                onClick={handleRegionClick}
-              />
-            ))}
+        {!expandedLeader && (
+          <div ref={regionSectionRef} className="scroll-mt-20">
+            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
+              1. Elige región
+            </p>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5">
+              {regions.map((region, i) => (
+                <RegionCard
+                  key={region.id}
+                  region={region}
+                  index={i}
+                  isExpanded={expandedRegion === region.id}
+                  onClick={handleRegionClick}
+                />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Leaders */}
-        {expandedRegion && currentRegion && (
+        {expandedRegion && currentRegion && !expandedLeader && (
           <div ref={leaderSectionRef} className="mt-6 scroll-mt-20 animate-in">
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
               2. Elige entrenador
@@ -340,13 +342,39 @@ export default function PokemonGuide() {
           </div>
         )}
 
+        {/* Compact breadcrumb once a leader is chosen, to leave room for the Pokémon grid */}
+        {expandedLeader && currentRegion && currentLeader && (
+          <div ref={leaderSectionRef} className="scroll-mt-20 flex flex-wrap items-center gap-2 text-sm">
+            <button
+              type="button"
+              onClick={handleGoToRegions}
+              className="rounded-full border border-ink-700 bg-ink-900/60 px-3 py-1.5 font-medium text-mist-300 hover:border-violet-500/50 hover:text-mist-100"
+            >
+              {currentRegion.name}
+            </button>
+            <span className="text-mist-600">/</span>
+            <button
+              type="button"
+              onClick={handleGoToLeaders}
+              className="flex items-center gap-1.5 rounded-full border border-amber-400/40 bg-amber-400/10 px-3 py-1.5 font-semibold text-amber-300 hover:bg-amber-400/15"
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}images/lideres/${currentLeader.name.toLowerCase().replace(/ /g, "_")}.png`}
+                alt=""
+                className="h-5 w-5 object-contain"
+              />
+              {currentLeader.name}
+            </button>
+          </div>
+        )}
+
         {/* Pokemon */}
         {expandedLeader && (
-          <div className="mt-6 animate-in">
-            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
+          <div className="mt-4 animate-in">
+            <p className="mb-2 text-xs font-medium uppercase tracking-wide text-mist-500">
               3. Elige el Pokémon rival
             </p>
-            <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-2.5">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(74px,1fr))] gap-2">
               {currentLeaderPokemons.map((pokemon) => (
                 <PokemonCard
                   key={pokemon.id}

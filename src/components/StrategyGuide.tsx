@@ -127,7 +127,6 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
     if (!strategy.nodes[nodeId]) return
     if (currentNodeId) setHistory((previous) => [...previous, currentNodeId])
     setCurrentNodeId(nodeId)
-    window.setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0)
   }
 
   const reset = () => {
@@ -143,7 +142,6 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
     if (!previous) return
     setHistory((items) => items.slice(0, -1))
     setCurrentNodeId(previous)
-    window.setTimeout(() => window.scrollTo({ top: 0, behavior: "smooth" }), 0)
   }
 
   const chooseGroup = (name: string) => {
