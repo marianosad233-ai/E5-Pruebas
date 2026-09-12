@@ -16,6 +16,7 @@ import { LeaderCard } from "./LeaderCard"
 import { PokemonCard } from "./PokemonCard"
 import { PokemonDetails } from "./PokemonDetails"
 import { SiteFooter } from "./SiteFooter"
+import { QuickNavBar } from "./QuickNavBar"
 import StrategyGuide from "./StrategyGuide"
 import sixPillars from "../data/strategies/gym-rerun/6pillars_basic.json"
 import sevenHells from "../data/strategies/gym-rerun/lucky_girl.json"
@@ -46,6 +47,8 @@ export default function PokemonGuide() {
   const [activeSection, setActiveSection] = useState<"e4" | "gym" | "red">("e4")
 
   const detailsRef = useRef<HTMLDivElement>(null)
+  const regionSectionRef = useRef<HTMLDivElement>(null)
+  const leaderSectionRef = useRef<HTMLDivElement>(null)
 
   const { getPokemonFiles } = useDynamicImports()
 
@@ -168,6 +171,42 @@ export default function PokemonGuide() {
   const currentLeader = currentRegion?.leaders.find((l) => l.id === expandedLeader)
   const currentLeaderPokemons = currentLeader?.pokemons || []
 
+  const handleGoToRegions = () => {
+    setExpandedRegion(null)
+    setExpandedLeader(null)
+    setSelectedPokemon(null)
+    requestAnimationFrame(() => {
+      regionSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    })
+  }
+
+  const handleGoToLeaders = () => {
+    setExpandedLeader(null)
+    setSelectedPokemon(null)
+    requestAnimationFrame(() => {
+      leaderSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    })
+  }
+
+  const handleNextLeader = () => {
+    if (!currentRegion) return
+    const leaderIdx = currentRegion.leaders.findIndex((l) => l.id === expandedLeader)
+    const hasNextInRegion = leaderIdx !== -1 && leaderIdx < currentRegion.leaders.length - 1
+
+    if (hasNextInRegion) {
+      setExpandedLeader(currentRegion.leaders[leaderIdx + 1].id)
+    } else {
+      const regionIdx = regions.findIndex((r) => r.id === currentRegion.id)
+      const nextRegion = regions[(regionIdx + 1) % regions.length]
+      setExpandedRegion(nextRegion.id)
+      setExpandedLeader(nextRegion.leaders[0]?.id ?? null)
+    }
+    setSelectedPokemon(null)
+    requestAnimationFrame(() => {
+      leaderSectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    })
+  }
+
   const stats = useMemo(() => {
     let leaders = 0
     let pokemons = 0
@@ -209,7 +248,7 @@ export default function PokemonGuide() {
       {activeSection === "e4" && isE4 ? (
         <>
           <HeroSection stats={stats} activeStrategy={activeStrategy} />
-          <main id="guia" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
+          <main id="guia" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
         {/* Tips */}
         <div className="mb-8 rounded-2xl border border-ink-700 bg-ink-900/60 p-4">
           <button
@@ -265,7 +304,7 @@ export default function PokemonGuide() {
         )}
 
         {/* Regions */}
-        <div>
+        <div ref={regionSectionRef} className="scroll-mt-20">
           <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
             1. Elige región
           </p>
@@ -284,7 +323,7 @@ export default function PokemonGuide() {
 
         {/* Leaders */}
         {expandedRegion && currentRegion && (
-          <div className="mt-6 animate-in">
+          <div ref={leaderSectionRef} className="mt-6 scroll-mt-20 animate-in">
             <p className="mb-3 text-xs font-medium uppercase tracking-wide text-mist-500">
               2. Elige entrenador
             </p>
@@ -327,6 +366,14 @@ export default function PokemonGuide() {
           </div>
         )}
           </main>
+          {expandedRegion && (
+            <QuickNavBar
+              hasLeader={!!expandedLeader}
+              onGoToRegions={handleGoToRegions}
+              onGoToLeaders={handleGoToLeaders}
+              onNextLeader={handleNextLeader}
+            />
+          )}
         </>
       ) : activeSection === "gym" ? (
         <main id="guia" className="pt-8">
