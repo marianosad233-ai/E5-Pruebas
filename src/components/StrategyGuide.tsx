@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { ArrowLeft, ArrowRight, BookOpen, ExternalLink, RotateCcw, SkipForward } from "lucide-react"
 import { PokeSprite } from "./PokeSprite"
 
@@ -107,6 +107,12 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
   const [legendOpen, setLegendOpen] = useState(false)
 
   const currentNode = strategy.nodes[currentNodeId]
+  const stepsRef = useRef<HTMLDivElement>(null)
+  const scrollToSteps = () => {
+    requestAnimationFrame(() => {
+      stepsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    })
+  }
   const paletteMap = useMemo(
     () => new Map((strategy.palette ?? []).map((entry) => [entry.name, entry])),
     [strategy.palette]
@@ -218,7 +224,7 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
                 </div>
                 <div className="mt-3 grid gap-2 sm:grid-cols-2">
                   {entries.map((entry) => (
-                    <button key={`${entry.nodeId}-${entry.label}`} onClick={() => { setHistory([]); setCurrentNodeId(entry.nodeId) }} className={`rounded-2xl border p-3 text-left transition-all ${currentNodeId === entry.nodeId ? "border-violet-500 bg-violet-600/10" : "border-ink-700 bg-ink-900/50 hover:border-violet-500/50 hover:bg-ink-900"}`}>
+                    <button key={`${entry.nodeId}-${entry.label}`} onClick={() => { setHistory([]); setCurrentNodeId(entry.nodeId); scrollToSteps() }} className={`rounded-2xl border p-3 text-left transition-all ${currentNodeId === entry.nodeId ? "border-violet-500 bg-violet-600/10" : "border-ink-700 bg-ink-900/50 hover:border-violet-500/50 hover:bg-ink-900"}`}>
                       <span className="block text-sm font-semibold text-mist-100">{entry.label}</span>
                       {entry.portrait && <span className="mt-1 block text-[11px] text-mist-500">Entrenador: {entry.portrait}</span>}
                     </button>
@@ -230,7 +236,7 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-mist-500">{strategy.homePrompt ?? "Elige el Pokémon rival"}</p>
                 <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3">
                   {entries.map((entry) => (
-                    <button key={`${entry.nodeId}-${entry.label}`} onClick={() => { setHistory([]); setCurrentNodeId(entry.nodeId) }} className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition-all ${currentNodeId === entry.nodeId ? "border-violet-500 bg-violet-600/10" : "border-ink-700 bg-ink-900/50 hover:border-violet-500/50"}`}>
+                    <button key={`${entry.nodeId}-${entry.label}`} onClick={() => { setHistory([]); setCurrentNodeId(entry.nodeId); scrollToSteps() }} className={`flex items-center gap-3 rounded-2xl border p-3 text-left transition-all ${currentNodeId === entry.nodeId ? "border-violet-500 bg-violet-600/10" : "border-ink-700 bg-ink-900/50 hover:border-violet-500/50"}`}>
                       <PokeSprite name={entry.label} className="h-9 w-9" />
                       <span className="text-sm font-semibold text-mist-100">{entry.label}</span>
                     </button>
@@ -240,7 +246,7 @@ export default function StrategyGuide({ strategy, category }: StrategyGuideProps
             )}
 
             {currentNode ? (
-              <div className="rounded-3xl border border-ink-700 bg-ink-900/70 p-5 sm:p-6">
+              <div ref={stepsRef} className="scroll-mt-20 rounded-3xl border border-ink-700 bg-ink-900/70 p-5 sm:p-6">
                 <div className="flex flex-col gap-3 border-b border-ink-700 pb-5 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wide text-violet-400">Paso actual</p>
