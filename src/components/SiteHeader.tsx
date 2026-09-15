@@ -11,6 +11,8 @@ import {
 
 interface SiteHeaderProps {
   onBreedingClick: () => void
+  onEggMovesClick: () => void
+  onBerriesClick: () => void
   activeStrategy: StrategyId
   onStrategyChange: (strategy: StrategyId) => void
   activeGymRerunStrategy: GymRerunStrategyId
@@ -27,6 +29,8 @@ export const SiteHeader = ({
   activeRedBattleStrategy,
   onRedBattleStrategyChange,
   onBreedingClick,
+  onEggMovesClick,
+  onBerriesClick,
 }: SiteHeaderProps) => {
   const [openMenu, setOpenMenu] = useState<"gym" | "red" | "e4" | "tools" | null>(null)
 
@@ -182,13 +186,34 @@ export const SiteHeader = ({
                   type="button"
                   role="menuitem"
                   onClick={() => { onBreedingClick(); setOpenMenu(null) }}
-                  className="flex w-full items-center justify-between rounded-xl bg-violet-600/10 px-3 py-2.5 text-left text-violet-200 transition-colors hover:bg-violet-600/15"
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-mist-300 transition-colors hover:bg-ink-800 hover:text-mist-100"
                 >
                   <span>
                     <span className="block text-sm font-semibold">Crianza</span>
                     <span className="mt-0.5 block text-[11px] text-mist-500">Breeding Simulator</span>
                   </span>
-                  <Check className="h-4 w-4 flex-shrink-0 text-violet-400" />
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => { onEggMovesClick(); setOpenMenu(null) }}
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-mist-300 transition-colors hover:bg-ink-800 hover:text-mist-100"
+                >
+                  <span>
+                    <span className="block text-sm font-semibold">Egg Moves</span>
+                    <span className="mt-0.5 block text-[11px] text-mist-500">Egg Moves Calculator</span>
+                  </span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => { onBerriesClick(); setOpenMenu(null) }}
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-mist-300 transition-colors hover:bg-ink-800 hover:text-mist-100"
+                >
+                  <span>
+                    <span className="block text-sm font-semibold">Berries</span>
+                    <span className="mt-0.5 block text-[11px] text-mist-500">Berries Helper</span>
+                  </span>
                 </button>
               </div>
             )}
@@ -245,14 +270,23 @@ export const SiteHeader = ({
           </div>
         </nav>
 
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onBreedingClick}
-            className="rounded-full border border-violet-500/40 bg-violet-600/10 px-3 py-1.5 text-xs font-semibold text-violet-200 transition-colors hover:bg-violet-600/15 sm:hidden"
-          >
-            Crianza
-          </button>
+        <div className="flex items-center gap-2">
+          <div className="relative sm:hidden">
+            <button
+              type="button"
+              onClick={() => setOpenMenu((value) => (value === "tools" ? null : "tools"))}
+              className="rounded-full border border-violet-500/40 bg-violet-600/10 px-3 py-1.5 text-xs font-semibold text-violet-200 transition-colors hover:bg-violet-600/15"
+            >
+              Herramientas
+            </button>
+            {openMenu === "tools" && (
+              <div className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-2xl border border-ink-700 bg-ink-950 p-1.5 shadow-2xl">
+                <button type="button" onClick={() => { onBreedingClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Crianza</button>
+                <button type="button" onClick={() => { onEggMovesClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Egg Moves Calculator</button>
+                <button type="button" onClick={() => { onBerriesClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Berries Helper</button>
+              </div>
+            )}
+          </div>
           <a
             href="https://discord.gg/pKPxjAFNmA"
             target="_blank"

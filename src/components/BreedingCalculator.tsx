@@ -3,260 +3,230 @@ import { HelpCircle } from "lucide-react"
 
 const IVS = [
   { key: "hp", label: "HP" },
-  { key: "atk", label: "ATK" },
-  { key: "def", label: "DEF" },
-  { key: "spa", label: "SPA" },
-  { key: "spd", label: "SPD" },
-  { key: "spe", label: "SPE" },
+  { key: "atk", label: "Attack" },
+  { key: "def", label: "Defense" },
+  { key: "spa", label: "Sp. Attack" },
+  { key: "spd", label: "Sp. Defense" },
+  { key: "spe", label: "Speed" },
 ] as const
 
 type IvKey = (typeof IVS)[number]["key"]
+type Token = number | 0
 
-const IV_LABELS: Record<IvKey, string> = Object.fromEntries(
-  IVS.map((iv) => [iv.key, iv.label]),
-) as Record<IvKey, string>
-
-const DEFAULT_GROUPS: Record<number, number[]> = {
-  2: [1, 1],
-  3: [1, 2, 1],
-  4: [1, 2, 3, 2],
-  // This is the grouping shown by PokeMMO Hub in the reference screen.
-  5: [2, 5, 5, 3, 1],
-  6: [1, 3, 7, 9, 8, 4],
+type Node = {
+  tokens: string[]
+  bred: boolean
 }
 
-const STAT_ORDER: IvKey[] = ["hp", "atk", "def", "spa", "spd", "spe"]
+const LABELS: Record<IvKey, string> = Object.fromEntries(IVS.map((iv) => [iv.key, iv.label])) as Record<IvKey, string>
 
-function distributeGroups(ivCount: number, selected: IvKey[]) {
-  const counts = DEFAULT_GROUPS[ivCount] ?? []
-  return counts.map((count, index) => ({
-    count,
-    stat: selected[index % selected.length],
-  }))
+// This follows PokeMMO Hub's breedingTable structure for the 2–5 IV simulator.
+const RANDOM_TABLE: Record<number, Token[][]> = {
+  2: [[1, 2], [1, 2]],
+  3: [[1, 2, 1, 3], [1, 2], [1, 3], [1, 2, 3]],
+  4: [[1, 2, 1, 3, 2, 3, 2, 4], [1, 2], [1, 3], [2, 3], [2, 4], [1, 2, 3], [2, 3, 4], [1, 2, 3, 4]],
+  5: [
+    [1, 2, 1, 3, 2, 3, 2, 4, 2, 3, 2, 4, 3, 4, 3, 5],
+    [1, 2], [1, 3], [2, 3], [2, 4], [2, 3], [2, 4], [3, 4], [3, 5],
+    [1, 2, 3], [2, 3, 4], [2, 3, 4], [3, 4, 5],
+    [1, 2, 3, 4], [2, 3, 4, 5],
+    [1, 2, 3, 4, 5],
+  ],
 }
 
-function buildTree(groups: { count: number; stat: IvKey }[]) {
-  let id = 0
-  let layer = groups.map((group) => ({
-    id: `leaf-${id++}`,
-    label: `${group.count} × 1x31`,
-    stat: IV_LABELS[group.stat],
-  }))
+const NATURE_TABLE: Record<number, Token[][]> = {
+  2: [
+    [1, 2, 1, 2, 0, 1, 1, 2],
+    [1, 2], [1, 2], [0, 1], [1, 2],
+    [0, 1, 2], [1, 2],
+  ],
+  3: [
+    [1, 2, 1, 3, 2, 3, 2, 3],
+    [1, 2], [1, 3], [2, 3], [0, 2],
+    [1, 2, 3], [2, 3, 0], [1, 2, 3],
+  ],
+  4: [
+    [1, 2, 1, 3, 2, 3, 2, 4, 2, 3, 2, 4, 3, 4, 3, 4],
+    [1, 2], [1, 3], [2, 3], [2, 4], [2, 3], [2, 4], [3, 4], [0, 2],
+    [2, 3], [2, 3], [2, 4], [2, 3], [2, 4], [3, 4], [3, 4],
+    [1, 2, 3], [2, 3, 4], [0, 2, 3], [2, 3, 4],
+    [1, 2, 3, 4], [2, 3, 4, 0],
+    [1, 2, 3, 4, 0],
+  ],
+  5: [
+    [1, 2, 1, 3, 2, 3, 2, 4, 2, 3, 2, 4, 3, 4, 3, 5, 0, 2, 2, 3, 2, 3, 2, 4, 2, 3, 2, 4, 3, 4, 3, 5],
+    [1, 2], [1, 3], [2, 3], [2, 4], [2, 3], [2, 4], [3, 4], [3, 5],
+    [0, 2], [2, 3], [2, 3], [2, 4], [2, 3], [2, 4], [3, 4], [3, 5],
+    [1, 2, 3], [2, 3, 4], [2, 3, 4], [3, 4, 5], [0, 2, 3], [2, 3, 4], [2, 3, 4], [3, 4, 5],
+    [1, 2, 3, 4], [2, 3, 4, 5], [0, 2, 3, 4], [2, 3, 4, 5],
+    [1, 2, 3, 4, 5], [0, 2, 3, 4, 5],
+    [1, 2, 3, 4, 5, 0],
+  ],
+}
 
-  const layers = [layer]
-  while (layer.length > 1) {
-    const next: typeof layer = []
-    for (let i = 0; i < layer.length; i += 2) {
-      const left = layer[i]
-      const right = layer[i + 1]
-      if (!right) {
-        next.push(left)
-        continue
-      }
-      next.push({
-        id: `breed-${id++}`,
-        label: "Breed",
-        stat: `${left.stat} + ${right.stat}`,
-      })
-    }
-    layer = next
-    layers.push(layer)
+const COLORS: Record<string, string> = {
+  hp: "#66d9a6",
+  atk: "#f26b6b",
+  def: "#e8a95a",
+  spa: "#63a9f5",
+  spd: "#a78bfa",
+  spe: "#f4d35e",
+  nat: "#b8b8b8",
+}
+
+const COSTS = {
+  random: { 2: 20000, 3: 65000, 4: 155000, 5: 340000 },
+  nature: { 2: 75000, 3: 170000, 4: 355000, 5: 715000 },
+} as const
+
+const COUNTS = {
+  random: { 2: [1, 1], 3: [2, 1, 1], 4: [2, 3, 2, 1], 5: [2, 5, 5, 3, 1] },
+  nature: { 2: [2, 1, 1], 3: [2, 2, 1, 0], 4: [6, 5, 3, 1, 0], 5: [2, 11, 10, 6, 2] },
+} as const
+
+const tokenToStat = (token: Token, selected: IvKey[]): string => token === 0 ? "nat" : selected[token - 1]
+
+function makeRows(ivCount: number, nature: boolean, selected: IvKey[]) {
+  const table = nature ? NATURE_TABLE[ivCount] : RANDOM_TABLE[ivCount]
+  const rowSizes = nature ? ivCount + 1 : ivCount
+  const rows: Node[][] = []
+  let offset = 0
+  for (let row = 0; row < rowSizes; row++) {
+    const count = 2 ** (rowSizes - row - 1)
+    rows.push(Array.from({ length: count }, (_, index) => ({
+      tokens: table?.[offset + index]?.map((token) => tokenToStat(token, selected)) || [],
+      bred: false,
+    })))
+    offset += count
   }
-  return layers
+  return rows
 }
 
 export default function BreedingCalculator() {
-  const [ivCount, setIvCount] = useState(5)
+  const [ivCount, setIvCount] = useState<2 | 3 | 4 | 5>(5)
   const [nature, setNature] = useState(false)
-  const [selectedIvs, setSelectedIvs] = useState<IvKey[]>(["hp", "atk", "def", "spd", "spe"])
-  const [groups, setGroups] = useState(() => distributeGroups(5, ["hp", "atk", "def", "spd", "spe"]))
+  const [selected, setSelected] = useState<IvKey[]>(["hp", "atk", "def", "spa", "spe"])
   const [started, setStarted] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
+  const [bred, setBred] = useState<Set<string>>(new Set())
 
-  const availableIvs = useMemo(() => {
-    return STAT_ORDER.filter((key) => selectedIvs.includes(key))
-  }, [selectedIvs])
+  const groups = useMemo(() => (nature ? COUNTS.nature : COUNTS.random)[ivCount], [ivCount, nature])
+  const totalPokemon = nature ? ivCount === 5 ? 32 : 2 ** ivCount : 2 ** (ivCount - 1)
+  const expectedPrice = (nature ? COSTS.nature : COSTS.random)[ivCount]
+  const rows = useMemo(() => makeRows(ivCount, nature, selected), [ivCount, nature, selected])
 
-  const totalPokemon = useMemo(() => {
-    return 2 ** Math.max(0, ivCount - 1) * (nature ? 2 : 1)
-  }, [ivCount])
-
-  const totalBreeds = Math.max(0, totalPokemon - 1)
-
-  const estimatedCost = useMemo(() => {
-    // Compact estimate matching the simple presentation used by PokeMMO Hub.
-    // 1x31 breeders + two braces per breed + gender choices.
-    const breederCost = totalPokemon * 10_000
-    const breedingCost = totalBreeds * 12_000
-    const natureCost = nature ? 15_000 : 0
-    return breederCost + breedingCost + natureCost
-  }, [totalPokemon, totalBreeds, nature])
-
-  const tree = useMemo(() => buildTree(groups), [groups])
-
-  const changeIvCount = (count: number) => {
-    const nextSelected = selectedIvs.slice(0, count)
-    const filled = [...nextSelected]
-    for (const iv of IVS.map((item) => item.key)) {
-      if (filled.length >= count) break
-      if (!filled.includes(iv)) filled.push(iv)
+  const changeCount = (count: 2 | 3 | 4 | 5) => {
+    const next = selected.slice(0, count)
+    while (next.length < count) {
+      const candidate = IVS.find((iv) => !next.includes(iv.key))?.key
+      if (!candidate) break
+      next.push(candidate)
     }
-    setSelectedIvs(filled)
-    setGroups(distributeGroups(count, filled))
+    setSelected(next)
     setIvCount(count)
     setStarted(false)
+    setBred(new Set())
   }
 
-  const changeGroup = (index: number, stat: IvKey) => {
-    setGroups((current) => current.map((group, i) => (i === index ? { ...group, stat } : group)))
+  const changeStat = (index: number, value: IvKey) => {
+    if (selected.some((stat, i) => i !== index && stat === value)) return
+    setSelected((current) => current.map((stat, i) => i === index ? value : stat))
     setStarted(false)
+    setBred(new Set())
   }
 
   const clear = () => {
-    const defaults = ["hp", "atk", "def", "spd", "spe"] as IvKey[]
     setIvCount(5)
     setNature(false)
-    setSelectedIvs(defaults)
-    setGroups(distributeGroups(5, defaults))
+    setSelected(["hp", "atk", "def", "spa", "spe"])
     setStarted(false)
+    setBred(new Set())
   }
+
+  const toggleBred = (row: number, col: number) => {
+    const key = `${row}-${col}`
+    setBred((current) => {
+      const next = new Set(current)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  const colorToken = (token: string) => token === "nat" ? COLORS.nat : COLORS[token]
 
   return (
     <section className="mx-auto w-full max-w-[1168px] px-4 pb-16 pt-4 sm:px-6 lg:px-8">
       <div className="border-b border-white/15 pb-3 text-sm text-mist-400">
-        <span className="text-mist-300">Home</span>
-        <span className="mx-2">/</span>
-        <span className="text-mist-300">Tools</span>
-        <span className="mx-2">/</span>
-        <span className="text-mist-500">Breeding Simulator</span>
+        <span className="text-mist-300">Home</span><span className="mx-2">/</span><span className="text-mist-300">Tools</span><span className="mx-2">/</span><span className="text-mist-500">Breeding Simulator</span>
       </div>
 
-      <div className="relative overflow-hidden">
-        <div className="pointer-events-none absolute -right-8 top-0 hidden h-32 w-32 rounded-full border-[18px] border-cyan-300/20 sm:block" />
-        <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-[38px]">Breeding Simulator</h1>
+      <h1 className="mt-3 text-3xl font-bold tracking-tight text-white sm:text-[38px]">Breeding Simulator</h1>
 
-        <button
-          type="button"
-          onClick={() => setShowHelp((value) => !value)}
-          className="mt-3 inline-flex items-center gap-2 rounded-md bg-cyan-400 px-3 py-2 text-sm font-medium text-slate-950 transition hover:bg-cyan-300"
-        >
-          <HelpCircle className="h-4 w-4" />
-          How to use the breeding tool
-        </button>
+      <button type="button" onClick={() => setShowHelp((v) => !v)} className="mt-3 inline-flex items-center gap-2 rounded-md bg-cyan-400 px-3 py-2 text-sm font-medium text-slate-950 hover:bg-cyan-300">
+        <HelpCircle className="h-4 w-4" /> How to use the breeding tool
+      </button>
+      {showHelp && <div className="mt-3 max-w-3xl rounded-md bg-[#20252b] p-4 text-sm leading-6 text-mist-300">Choose how many IVs you want, decide whether nature matters, assign a different IV to every group and press Start breeding. The graph shows every required breeding step.</div>}
 
-        {showHelp && (
-          <div className="mt-3 max-w-3xl rounded-md border border-white/10 bg-[#20252b] p-4 text-sm leading-6 text-mist-300">
-            Choose how many perfect IVs you want, decide whether nature matters, assign one IV to every group and press <strong className="text-white">Start breeding</strong>. The simulator then shows the breeding tree and an estimated total cost.
+      <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
+        <div>
+          <p className="mb-2 text-sm text-mist-300">How many IVs do you want?</p>
+          <div className="inline-flex overflow-hidden rounded-md border border-white/10 bg-[#59616a]">
+            {[2, 3, 4, 5].map((count) => <button key={count} type="button" onClick={() => changeCount(count as 2 | 3 | 4 | 5)} className={`min-w-[39px] px-3 py-2 text-sm font-medium ${ivCount === count ? "bg-[#6f7882] text-white" : "text-white/90 hover:bg-white/10"}`}>{count}</button>)}
           </div>
-        )}
+        </div>
+        <label className="flex cursor-pointer items-center gap-2 pb-1 text-sm text-mist-300">
+          <input type="checkbox" checked={nature} onChange={(e) => { setNature(e.target.checked); setStarted(false); setBred(new Set()) }} className="h-4 w-4 accent-cyan-400" />
+          Consider nature in breeding project?
+        </label>
+      </div>
 
-        <div className="mt-5 flex flex-col gap-4 sm:flex-row sm:items-end sm:gap-8">
-          <div>
-            <p className="mb-2 text-sm text-mist-300">How many IVs do you want?</p>
-            <div className="inline-flex overflow-hidden rounded-md border border-white/10 bg-[#59616a]">
-              {[2, 3, 4, 5, 6].map((count) => (
-                <button
-                  key={count}
-                  type="button"
-                  onClick={() => changeIvCount(count)}
-                  className={`min-w-[39px] px-3 py-2 text-sm font-medium transition ${ivCount === count ? "bg-[#6f7882] text-white" : "text-white/90 hover:bg-white/10"}`}
-                >
-                  {count}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <label className="flex cursor-pointer items-center gap-2 pb-1 text-sm text-mist-300">
-            <input
-              type="checkbox"
-              checked={nature}
-              onChange={(event) => {
-                setNature(event.target.checked)
-                setStarted(false)
-              }}
-              className="h-4 w-4 accent-cyan-400"
-            />
-            Consider nature in breeding project?
+      <div className="mt-3 flex flex-wrap gap-6">
+        {groups.map((count, index) => (
+          <label key={index} className={count === 0 ? "hidden" : "min-w-[190px] flex-1"}>
+            <span className="mb-1 block text-sm text-mist-300"><strong className="text-base text-white">{count}</strong> 1x31 IV in...</span>
+            <select value={selected[index] ?? "hp"} onChange={(e) => changeStat(index, e.target.value as IvKey)} className="w-full rounded-md border border-white/20 bg-[#66707a] px-3 py-2 text-sm text-white outline-none focus:border-cyan-300">
+              {IVS.map((iv) => <option key={iv.key} value={iv.key}>{iv.label}</option>)}
+            </select>
           </label>
-        </div>
-
-        <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-          {groups.map((group, index) => (
-            <label key={`${index}-${group.stat}`} className="min-w-0">
-              <span className="mb-1 block truncate text-sm text-white">
-                <strong>{group.count}</strong> <span className="text-xs text-mist-400">1x31 IV in...</span>
-              </span>
-              <select
-                value={group.stat}
-                onChange={(event) => changeGroup(index, event.target.value as IvKey)}
-                className="w-full rounded-md border border-white/20 bg-[#66707a] px-3 py-2 text-sm text-white outline-none transition focus:border-cyan-300"
-              >
-                {availableIvs.map((iv) => (
-                  <option key={iv} value={iv}>{IV_LABELS[iv]}</option>
-                ))}
-              </select>
-            </label>
-          ))}
-        </div>
-
-        <div className="mt-3 rounded-md border border-white/5 bg-[#20252b] px-5 py-5 text-sm leading-6 text-mist-300">
-          For this Pokémon you will spend <strong className="text-white">{estimatedCost.toLocaleString("en-US")}$</strong> and you may need <strong className="text-white">{totalPokemon}</strong> Pokémon.
-          <br />
-          Price calculations are based only on the breeding items cost, gender choice and everstone. Keep in consideration that some Pokémon has a higher cost for gender choices.
-        </div>
-
-        <div className="mt-6 flex gap-3">
-          <button
-            type="button"
-            onClick={() => setStarted(true)}
-            className="rounded-md bg-[#68727d] px-3 py-2 text-sm font-medium text-white transition hover:bg-[#77838f]"
-          >
-            Start breeding
-          </button>
-          <button
-            type="button"
-            onClick={clear}
-            className="rounded-md border border-red-500 px-3 py-2 text-sm font-medium text-red-400 transition hover:bg-red-500/10"
-          >
-            Clear
-          </button>
-        </div>
-
-        {started && (
-          <div className="mt-8 overflow-x-auto rounded-md border border-white/10 bg-[#20252b] p-5">
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-lg font-semibold text-white">Breeding plan</h2>
-                <p className="text-sm text-mist-400">{ivCount}x31{nature ? " + Nature" : ""}</p>
-              </div>
-              <div className="text-right text-sm text-mist-400">
-                <div>{totalPokemon} Pokémon</div>
-                <div>{totalBreeds} breeds</div>
-              </div>
-            </div>
-
-            <div className="min-w-[760px] space-y-3">
-              {tree.map((layer, layerIndex) => (
-                <div key={layerIndex} className="flex justify-center gap-3">
-                  {layer.map((node) => (
-                    <div
-                      key={node.id}
-                      className={`min-w-[112px] rounded-md border px-3 py-2 text-center ${layerIndex === tree.length - 1 ? "border-cyan-300/50 bg-cyan-400/10" : "border-white/10 bg-[#30363d]"}`}
-                    >
-                      <div className="text-xs font-semibold text-white">{node.label}</div>
-                      <div className="mt-1 text-[11px] text-mist-400">{node.stat}</div>
-                    </div>
-                  ))}
-                </div>
-              ))}
-              <div className="flex justify-center pt-2 text-xs font-semibold uppercase tracking-widest text-cyan-300">
-                Final Pokémon
-              </div>
-            </div>
-          </div>
-        )}
+        ))}
       </div>
+
+      <div className="mt-3 rounded-md border border-white/5 bg-[#20252b] px-5 py-5 text-sm leading-6 text-mist-300">
+        For this Pokémon you will spend <strong className="text-white">{expectedPrice.toLocaleString("en-US")}$</strong> and you may need <strong className="text-white">{totalPokemon}</strong> Pokémon.
+        <br />Price calculations are based only on the breeding items cost, gender choice and everstone. Keep in consideration that some Pokémon has a higher cost for gender choices.
+      </div>
+
+      <div className="mt-6 flex gap-3">
+        <button type="button" onClick={() => setStarted(true)} className="rounded-md bg-[#68727d] px-3 py-2 text-sm font-medium text-white hover:bg-[#77838f]">Start breeding</button>
+        <button type="button" onClick={clear} className="rounded-md border border-red-500 px-3 py-2 text-sm font-medium text-red-400 hover:bg-red-500/10">Clear</button>
+      </div>
+
+      {started && (
+        <div className="mt-4 overflow-x-auto rounded-md bg-[#20252b] p-5">
+          <div className="flex min-w-[800px] flex-col gap-6 py-2">
+            <div className="flex justify-center gap-5 text-xs text-mist-300">
+              {selected.map((stat) => <div key={stat} className="flex items-center gap-2"><span className="h-3 w-3 rounded-full" style={{ background: COLORS[stat] }} />{LABELS[stat]}</div>)}
+              {nature && <div className="flex items-center gap-2"><span className="h-3 w-3 rounded-full" style={{ background: COLORS.nat }} />Nature</div>}
+            </div>
+
+            {rows.map((row, rowIndex) => (
+              <div key={rowIndex} className="relative flex items-center justify-center gap-2 sm:gap-3">
+                {row.map((node, colIndex) => {
+                  const key = `${rowIndex + 1}-${colIndex}`
+                  const isBred = bred.has(key)
+                  const size = Math.max(28, 48 - rowIndex * 4)
+                  return (
+                    <button key={key} type="button" title={node.tokens.map((token) => token === "nat" ? "Nature" : LABELS[token as IvKey]).join(" + ")} onClick={() => toggleBred(rowIndex + 1, colIndex)} className="relative shrink-0 rounded-full p-0 transition hover:scale-105" style={{ width: size, height: size, border: isBred ? `${Math.max(2, rowIndex + 1)}px solid #a2f79f` : "2px solid transparent", overflow: "hidden", display: "flex" }}>
+                      {node.tokens.map((token, tokenIndex) => <span key={`${token}-${tokenIndex}`} className="h-full flex-1" style={{ background: colorToken(token) }} />)}
+                    </button>
+                  )
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </section>
   )
 }

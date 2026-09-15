@@ -19,6 +19,8 @@ import { SiteFooter } from "./SiteFooter"
 import { QuickNavBar } from "./QuickNavBar"
 import StrategyGuide from "./StrategyGuide"
 import BreedingCalculator from "./BreedingCalculator"
+import EggMovesCalculator from "./EggMovesCalculator"
+import BerriesHelper from "./BerriesHelper"
 import sixPillars from "../data/strategies/gym-rerun/6pillars_basic.json"
 import sevenHells from "../data/strategies/gym-rerun/lucky_girl.json"
 import jinxedBoon from "../data/strategies/red-battle/red.json"
@@ -45,7 +47,7 @@ export default function PokemonGuide() {
   const [activeStrategy, setActiveStrategy] = useState<StrategyId>("dingxianyou")
   const [activeGymRerunStrategy, setActiveGymRerunStrategy] = useState<GymRerunStrategyId>("six-pillars")
   const [activeRedBattleStrategy, setActiveRedBattleStrategy] = useState<RedBattleStrategyId>("jinxedboon")
-  const [activeSection, setActiveSection] = useState<"e4" | "gym" | "red" | "breeding">("e4")
+  const [activeSection, setActiveSection] = useState<"e4" | "gym" | "red" | "breeding" | "eggMoves" | "berries">("e4")
 
   const detailsRef = useRef<HTMLDivElement>(null)
   const regionSectionRef = useRef<HTMLDivElement>(null)
@@ -250,6 +252,18 @@ export default function PokemonGuide() {
           setExpandedLeader(null)
           setSelectedPokemon(null)
         }}
+        onEggMovesClick={() => {
+          setActiveSection("eggMoves")
+          setExpandedRegion(null)
+          setExpandedLeader(null)
+          setSelectedPokemon(null)
+        }}
+        onBerriesClick={() => {
+          setActiveSection("berries")
+          setExpandedRegion(null)
+          setExpandedLeader(null)
+          setSelectedPokemon(null)
+        }}
       />
 
       {activeSection === "e4" && isE4 ? (
@@ -418,9 +432,17 @@ export default function PokemonGuide() {
         <main id="guia" className="pt-8">
           <StrategyGuide key={selectedRedStrategy.id} strategy={selectedRedStrategy} category="Red Battle" />
         </main>
-      ) : (
+      ) : activeSection === "breeding" ? (
         <main id="herramientas" className="pt-8">
           <BreedingCalculator />
+        </main>
+      ) : activeSection === "eggMoves" ? (
+        <main id="herramientas" className="pt-8">
+          <EggMovesCalculator />
+        </main>
+      ) : (
+        <main id="herramientas" className="pt-8">
+          <BerriesHelper />
         </main>
       )}
 
