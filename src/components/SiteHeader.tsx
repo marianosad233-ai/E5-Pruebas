@@ -10,6 +10,7 @@ import {
 } from "../config/strategies"
 
 interface SiteHeaderProps {
+  onBreedingClick: () => void
   activeStrategy: StrategyId
   onStrategyChange: (strategy: StrategyId) => void
   activeGymRerunStrategy: GymRerunStrategyId
@@ -25,8 +26,9 @@ export const SiteHeader = ({
   onGymRerunStrategyChange,
   activeRedBattleStrategy,
   onRedBattleStrategyChange,
+  onBreedingClick,
 }: SiteHeaderProps) => {
-  const [openMenu, setOpenMenu] = useState<"gym" | "red" | "e4" | null>(null)
+  const [openMenu, setOpenMenu] = useState<"gym" | "red" | "e4" | "tools" | null>(null)
 
   const selectStrategy = (strategyId: StrategyId) => {
     onStrategyChange(strategyId)
@@ -159,6 +161,42 @@ export const SiteHeader = ({
           <div className="relative">
             <button
               type="button"
+              onClick={() => setOpenMenu((value) => (value === "tools" ? null : "tools"))}
+              aria-haspopup="menu"
+              aria-expanded={openMenu === "tools"}
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition-colors ${
+                openMenu === "tools" ? "bg-violet-600/15 text-violet-300" : "hover:text-mist-100"
+              }`}
+            >
+              <span>Herramientas</span>
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${openMenu === "tools" ? "rotate-180" : ""}`} />
+            </button>
+
+            {openMenu === "tools" && (
+              <div role="menu" className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-2xl border border-ink-700 bg-ink-950/95 p-1.5 shadow-2xl shadow-black/30 backdrop-blur">
+                <div className="px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">Herramientas PokeMMO</p>
+                  <p className="mt-1 text-xs text-mist-500">Calculadoras y utilidades</p>
+                </div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => { onBreedingClick(); setOpenMenu(null) }}
+                  className="flex w-full items-center justify-between rounded-xl bg-violet-600/10 px-3 py-2.5 text-left text-violet-200 transition-colors hover:bg-violet-600/15"
+                >
+                  <span>
+                    <span className="block text-sm font-semibold">Crianza</span>
+                    <span className="mt-0.5 block text-[11px] text-mist-500">Breeding Simulator</span>
+                  </span>
+                  <Check className="h-4 w-4 flex-shrink-0 text-violet-400" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          <div className="relative">
+            <button
+              type="button"
               onClick={() => setOpenMenu((value) => (value === "e4" ? null : "e4"))}
               aria-haspopup="menu"
               aria-expanded={openMenu === "e4"}
@@ -208,6 +246,13 @@ export const SiteHeader = ({
         </nav>
 
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={onBreedingClick}
+            className="rounded-full border border-violet-500/40 bg-violet-600/10 px-3 py-1.5 text-xs font-semibold text-violet-200 transition-colors hover:bg-violet-600/15 sm:hidden"
+          >
+            Crianza
+          </button>
           <a
             href="https://discord.gg/pKPxjAFNmA"
             target="_blank"
