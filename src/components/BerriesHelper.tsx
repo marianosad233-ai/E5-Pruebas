@@ -46,7 +46,6 @@ const formatDiff = (ms: number) => {
   return parts.join(" ")
 }
 
-const formatDate = (timestamp: number) => new Intl.DateTimeFormat("en-US", { dateStyle: "short", timeStyle: "short" }).format(new Date(timestamp))
 
 function dropletState(berry: BerryData, tsPlant: number, tsLastWater: number, now: number, index: number) {
   const firstWater = tsPlant === tsLastWater

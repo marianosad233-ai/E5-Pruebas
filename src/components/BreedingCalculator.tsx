@@ -11,7 +11,7 @@ const IVS = [
 ] as const
 
 type IvKey = (typeof IVS)[number]["key"]
-type Token = number
+type Token = 0 | 1 | 2 | 3 | 4 | 5
 
 const LABELS: Record<IvKey, string> = Object.fromEntries(IVS.map((iv) => [iv.key, iv.label])) as Record<IvKey, string>
 
@@ -81,7 +81,7 @@ const COUNTS = {
   nature: { 2: [2, 1, 1], 3: [4, 2, 1], 4: [6, 5, 3, 1], 5: [2, 11, 10, 6, 2] },
 } as const
 
-const tokenToStat = (token: Token, selected: IvKey[]) => token === 0 ? "nat" : selected[token - 1]
+const tokenToStat = (token: Token, selected: IvKey[]): string => token === 0 ? "nat" : (selected[token - 1] ?? "")
 
 function makeRows(ivCount: 2 | 3 | 4 | 5, nature: boolean, selected: IvKey[]) {
   const source = TABLES[nature ? "nature" : "random"][ivCount]
