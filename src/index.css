@@ -78,3 +78,12 @@ button:focus-visible,
   from { transform: translateY(10px); opacity: 0; }
   to { transform: translateY(0); opacity: 1; }
 }
+
+@keyframes dropletBlink {
+  from { color: #f87171; opacity: 1; }
+  to { color: #f87171; opacity: 0.25; }
+}
+
+.animate-droplet-blink {
+  animation: dropletBlink 1s infinite alternate;
+}
