@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react"
 import { ChevronRight, ExternalLink, Loader2, Search, Sparkles } from "lucide-react"
+import { PokeSprite } from "./PokeSprite"
 
 const EGG_MOVES_URL = "https://raw.githubusercontent.com/PokeMMOZone/PokeMMO-Data/master/data/egg-moves-data.json"
 
@@ -10,9 +11,6 @@ const prettyName = (value: string) =>
     .split("-")
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ")
-
-const spriteUrl = (pokemon: string) =>
-  `https://raw.githubusercontent.com/PokeMMOZone/PokeMMO-Data/master/sprites/${pokemon}.png`
 
 export default function EggMovesCalculator() {
   const [data, setData] = useState<EggMoveData | null>(null)
@@ -137,7 +135,7 @@ export default function EggMovesCalculator() {
             <div className="rounded-2xl border border-ink-800 bg-ink-900/60 p-4">
               <div className="flex items-center gap-3">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-ink-950 ring-1 ring-ink-700">
-                  {pokemon && <img src={spriteUrl(pokemon)} alt="" className="h-12 w-12 object-contain" onError={(event) => { event.currentTarget.style.display = "none" }} />}
+                  {pokemon && <PokeSprite name={pokemon} className="h-12 w-12" />}
                 </div>
                 <div>
                   <p className="text-xs uppercase tracking-[0.14em] text-mist-500">Seleccionado</p>
@@ -189,7 +187,7 @@ export default function EggMovesCalculator() {
                       {chain.map((step, stepIndex) => (
                         <div key={`${step}-${stepIndex}`} className="flex items-center gap-2">
                           <div className="flex items-center gap-2 rounded-xl border border-ink-700 bg-ink-900 px-2.5 py-2">
-                            <img src={spriteUrl(step)} alt="" className="h-9 w-9 object-contain" onError={(event) => { event.currentTarget.style.display = "none" }} />
+                            <PokeSprite name={step} className="h-9 w-9" />
                             <span className="text-xs font-semibold text-mist-200">{prettyName(step)}</span>
                           </div>
                           {stepIndex < chain.length - 1 && <ChevronRight className="h-4 w-4 text-violet-400" />}
