@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react"
-import { Heart, Droplets } from "lucide-react"
+import { Heart, Droplets, Droplet } from "lucide-react"
 
 const BERRIES_URL = "https://raw.githubusercontent.com/PokeMMO-Tools/pokemmo-hub/main/src/data/pokemmo/item-berry.json"
 const ITEMS_URL = "https://raw.githubusercontent.com/PokeMMO-Tools/pokemmo-hub/main/src/data/pokemmo/item.json"
@@ -67,6 +67,7 @@ export default function BerriesHelper() {
   const [now, setNow] = useState(Date.now())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [justWatered, setJustWatered] = useState<Record<number, boolean>>({})
   const listRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -112,7 +113,11 @@ export default function BerriesHelper() {
 
   const addBerry = (id: number) => setPlants((current) => [...current, { _id: Date.now(), id, tsPlant: Date.now(), tsLastWater: Date.now() }])
   const removeBerry = (_id: number) => setPlants((current) => current.filter((berry) => berry._id !== _id))
-  const waterBerry = (_id: number) => setPlants((current) => current.map((berry) => berry._id === _id ? { ...berry, tsLastWater: Date.now() } : berry))
+  const waterBerry = (_id: number) => {
+    setPlants((current) => current.map((berry) => berry._id === _id ? { ...berry, tsLastWater: Date.now() } : berry))
+    setJustWatered((current) => ({ ...current, [_id]: true }))
+    window.setTimeout(() => setJustWatered((current) => ({ ...current, [_id]: false })), 700)
+  }
   const toggleFavorite = (id: number) => setFavorites((current) => current.includes(id) ? current.filter((x) => x !== id) : [...current, id])
 
   return (
@@ -126,7 +131,7 @@ export default function BerriesHelper() {
           {plants.length === 0 ? <div><h2 className="text-lg font-semibold text-white">No berries planted.</h2><button type="button" onClick={() => listRef.current?.scrollIntoView({ behavior: "smooth" })} className="mt-3 rounded-md bg-amber-400 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-amber-300">Start now</button></div> : <>
             <h2 className="text-xl font-semibold text-white">Your berries</h2>
             <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[720px] text-sm"><thead><tr className="border-b border-white/10 text-left text-mist-400"><th className="px-3 py-2">Berry name</th><th className="px-3 py-2">Status</th><th className="px-3 py-2">Ready</th><th className="px-3 py-2">Actions</th></tr></thead><tbody>
-              {plants.map((planted) => { const berry = berryById(planted.id); if (!berry) return null; const ready = planted.tsPlant + berry.grow_time * 3600000; const firstWater = planted.tsPlant === planted.tsLastWater; return <tr key={planted._id} className="border-b border-white/5"><td className="px-3 py-3"><img src={`${ICON_URL}${planted.id}.png`} alt="" className="mr-2 inline-block h-7 w-7 align-middle" />{itemName(planted.id)}</td><td className="px-3 py-3"><span className="inline-flex gap-1">{[0,1,2,3,4].map((i) => { const state = dropletState(berry, planted.tsPlant, planted.tsLastWater, now, i); return <Droplets key={i} className={`h-5 w-5 ${state === "filled" ? "text-mist-100" : state === "red" ? "text-red-400" : "text-mist-600"}`} /> })}</span><div className="mt-1 text-xs text-mist-500">{firstWater ? "Still not watered" : `Watered: ${formatDiff(now - planted.tsLastWater)} ago`}</div></td><td className="px-3 py-3 text-mist-200">{now >= ready ? "Ready" : formatDiff(ready - now)}</td><td className="px-3 py-3"><div className="flex gap-2"><button type="button" onClick={() => waterBerry(planted._id)} className="rounded-md bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white">Water</button><button type="button" onClick={() => removeBerry(planted._id)} className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white">Remove</button></div></td></tr> })}
+              {plants.map((planted) => { const berry = berryById(planted.id); if (!berry) return null; const ready = planted.tsPlant + berry.grow_time * 3600000; const firstWater = planted.tsPlant === planted.tsLastWater; const wateredNow = justWatered[planted._id]; return <tr key={planted._id} className={`border-b border-white/5 ${wateredNow ? "animate-row-flash" : ""}`}><td className="px-3 py-3"><img src={`${ICON_URL}${planted.id}.png`} alt="" className="mr-2 inline-block h-7 w-7 align-middle" />{itemName(planted.id)}</td><td className="px-3 py-3"><span className={`inline-flex gap-1 ${wateredNow ? "animate-water-pulse" : ""}`}>{[0,1,2,3,4].map((i) => { const state = dropletState(berry, planted.tsPlant, planted.tsLastWater, now, i); return <Droplets key={i} className={`h-5 w-5 ${wateredNow ? "text-sky-400" : state === "filled" ? "text-mist-100" : state === "red" ? "text-red-400 animate-droplet-blink" : "text-mist-600"}`} /> })}</span><div className="mt-1 text-xs text-mist-500">{firstWater ? "Still not watered" : `Watered: ${formatDiff(now - planted.tsLastWater)} ago`}</div></td><td className="px-3 py-3 text-mist-200">{now >= ready ? "Ready" : formatDiff(ready - now)}</td><td className="px-3 py-3"><div className="flex gap-2"><button type="button" onClick={() => waterBerry(planted._id)} className="flex items-center gap-1.5 rounded-md bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500"><Droplet className="h-3.5 w-3.5" />Water</button><button type="button" onClick={() => removeBerry(planted._id)} className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-500">Remove</button></div></td></tr> })}
             </tbody></table></div>
           </>}
         </div>
