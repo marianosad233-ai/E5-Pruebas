@@ -128,12 +128,16 @@ function BreedingItem({
   rowIndex,
   totalRows,
   completed,
+  highlighted,
+  selectedNode,
   onClick,
 }: {
   node: TreeNode
   rowIndex: number
   totalRows: number
   completed: boolean
+  highlighted: boolean
+  selectedNode: boolean
   onClick: () => void
 }) {
   // Hub grows the circles as the tree gets closer to the final result.
@@ -152,8 +156,18 @@ function BreedingItem({
       style={{
         width: size,
         height: size,
-        border: `${completed ? Math.max(2, Math.round(size / 8)) : 0}px solid #7bea75`,
-        boxShadow: completed ? "0 0 0 2px rgba(123,234,117,.35)" : "none",
+        border: `${selectedNode ? Math.max(3, Math.round(size / 6)) : highlighted || completed ? Math.max(2, Math.round(size / 8)) : 0}px solid ${selectedNode ? "#4f9cff" : "#7bea75"}`,
+        boxShadow: selectedNode
+          ? "0 0 0 3px rgba(79,156,255,.45), 0 0 18px rgba(79,156,255,.35)"
+          : highlighted
+            ? "0 0 0 3px rgba(123,234,117,.38), 0 0 14px rgba(123,234,117,.20)"
+            : completed
+              ? "0 0 0 2px rgba(123,234,117,.35)"
+              : "none",
+        transform: highlighted || selectedNode ? "scale(1.08)" : undefined,
+        transition: "transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease",
+        animation: highlighted || selectedNode ? "breedingPathPulse 650ms ease-out" : undefined,
+        animationDelay: highlighted && !selectedNode ? `${Math.max(0, totalRows - rowIndex - 1) * 90}ms` : "0ms",
       }}
     >
       {node.tokens.map((token, index) => (
@@ -172,12 +186,16 @@ function BreedingList({
   selected,
   nature,
   completed,
+  highlighted,
+  selectedNode,
   toggle,
 }: {
   rows: TreeNode[][]
   selected: IvKey[]
   nature: boolean
   completed: Set<string>
+  highlighted: Set<string>
+  selectedNode: string | null
   toggle: (row: number, column: number) => void
 }) {
   // Compact layout like PokeMMO Hub. Each pair of parents connects to
@@ -190,7 +208,15 @@ function BreedingList({
     Math.round(15 + (rowIndex / Math.max(rows.length - 1, 1)) * 33)
 
   return (
-    <div className="rounded-md bg-[#20252b] px-4 py-6 sm:px-6">
+    <>
+      <style>{`
+        @keyframes breedingPathPulse {
+          0% { transform: scale(1); filter: brightness(1); }
+          45% { transform: scale(1.12); filter: brightness(1.35); }
+          100% { transform: scale(1.08); filter: brightness(1); }
+        }
+      `}</style>
+      <div className="rounded-md bg-[#20252b] px-4 py-6 sm:px-6">
       <div className="mx-auto min-w-[680px] max-w-[1168px]">
         <Legend selected={selected} nature={nature} />
 
@@ -211,8 +237,6 @@ function BreedingList({
               // from appearing above/beside the circles.
               const parentY = graphTop + rowIndex * rowHeight + parentSize / 2 + 4
               const childY = graphTop + (rowIndex + 1) * rowHeight + childSize / 2 + 4
-              const branchY = (parentY + childY) / 2
-
               return Array.from({ length: childCount }).map((_, childIndex) => {
                 const leftParentIndex = childIndex * 2
                 const rightParentIndex = leftParentIndex + 1
@@ -220,19 +244,21 @@ function BreedingList({
                 const rightX = ((rightParentIndex + 0.5) / parentCount) * 100
                 const childX = ((childIndex + 0.5) / childCount) * 100
                 const midX = (leftX + rightX) / 2
+                const connectorColor = highlighted.has(`${rowIndex}-${leftParentIndex}`) && highlighted.has(`${rowIndex}-${rightParentIndex}`) && highlighted.has(`${rowIndex + 1}-${childIndex}`)
+                  ? "#7bea75"
+                  : "#d4d4d4"
 
                 return (
                   <g
                     key={`${rowIndex}-${childIndex}`}
-                    stroke="#d4d4d4"
-                    strokeWidth="1.2"
+                    stroke={connectorColor}
+                    strokeWidth={connectorColor === "#7bea75" ? 1.7 : 1.2}
                     fill="none"
                     vectorEffect="non-scaling-stroke"
+                    className="transition-all duration-200"
                   >
                     <line x1={leftX} y1={parentY} x2={rightX} y2={parentY} />
-                    <line x1={midX} y1={parentY} x2={midX} y2={branchY} />
-                    <line x1={midX} y1={branchY} x2={childX} y2={branchY} />
-                    <line x1={childX} y1={branchY} x2={childX} y2={childY} />
+                    <line x1={midX} y1={parentY} x2={midX} y2={childY} />
                   </g>
                 )
               })
@@ -261,6 +287,8 @@ function BreedingList({
                       rowIndex={rowIndex}
                       totalRows={rows.length}
                       completed={completed.has(`${rowIndex}-${columnIndex}`)}
+                      highlighted={highlighted.has(`${rowIndex}-${columnIndex}`)}
+                      selectedNode={selectedNode === `${rowIndex}-${columnIndex}`}
                       onClick={() => toggle(rowIndex, columnIndex)}
                     />
                   </div>
@@ -270,7 +298,8 @@ function BreedingList({
           })}
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 
@@ -281,6 +310,7 @@ export default function BreedingCalculator() {
   const [started, setStarted] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
   const [bred, setBred] = useState<Set<string>>(new Set())
+  const [selectedNode, setSelectedNode] = useState<string | null>(null)
   const [error, setError] = useState("")
 
   const groups = useMemo(() => (nature ? COUNTS.nature : COUNTS.random)[ivCount], [ivCount, nature])
@@ -296,6 +326,7 @@ export default function BreedingCalculator() {
     setStarted(false)
     setError("")
     setBred(new Set())
+    setSelectedNode(null)
   }
 
   const changeStat = (index: number, value: IvKey) => {
@@ -303,6 +334,7 @@ export default function BreedingCalculator() {
     setStarted(false)
     setError("")
     setBred(new Set())
+    setSelectedNode(null)
   }
 
   const startBreeding = () => {
@@ -313,6 +345,7 @@ export default function BreedingCalculator() {
     setError("")
     setStarted(true)
     setBred(new Set())
+    setSelectedNode(null)
   }
 
   const clear = () => {
@@ -322,10 +355,25 @@ export default function BreedingCalculator() {
     setStarted(false)
     setError("")
     setBred(new Set())
+    setSelectedNode(null)
+  }
+
+  const getPath = (row: number, column: number) => {
+    const path = new Set<string>()
+    const visit = (r: number, c: number) => {
+      const key = `${r}-${c}`
+      path.add(key)
+      if (r === 0) return
+      visit(r - 1, c * 2)
+      visit(r - 1, c * 2 + 1)
+    }
+    visit(row, column)
+    return path
   }
 
   const toggleBred = (row: number, column: number) => {
     const key = `${row}-${column}`
+    setSelectedNode((current) => (current === key ? null : key))
     setBred((current) => {
       const next = new Set(current)
       if (next.has(key)) next.delete(key)
@@ -333,6 +381,12 @@ export default function BreedingCalculator() {
       return next
     })
   }
+
+  const highlightedPath = useMemo(() => {
+    if (!selectedNode) return new Set<string>()
+    const [row, column] = selectedNode.split("-").map(Number)
+    return getPath(row, column)
+  }, [selectedNode, rows.length])
 
   return (
     <section className="mx-auto w-full max-w-[1168px] px-4 pb-16 pt-5 sm:px-6 lg:px-8">
@@ -417,7 +471,7 @@ export default function BreedingCalculator() {
 
       {started && (
         <div className="mt-4 overflow-x-auto">
-          <BreedingList rows={rows} selected={activeSelected} nature={nature} completed={bred} toggle={toggleBred} />
+          <BreedingList rows={rows} selected={activeSelected} nature={nature} completed={bred} highlighted={highlightedPath} selectedNode={selectedNode} toggle={toggleBred} />
         </div>
       )}
     </section>
