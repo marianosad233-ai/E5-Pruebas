@@ -4,7 +4,6 @@ import { ArrowLeft, ArrowRight, Check, Monitor, RotateCcw, Smartphone } from "lu
 import type { Pokemon } from "../interfaces/Pokemon"
 import type { Region, ConfigLeader } from "../interfaces/Region"
 import { PokeSprite } from "./PokeSprite"
-import { PokemonDetails } from "./PokemonDetails"
 import { TrickItem } from "./TrickItem"
 
 type LoadedLeader = Omit<ConfigLeader, "pokemons"> & { pokemons: Pokemon[] }
