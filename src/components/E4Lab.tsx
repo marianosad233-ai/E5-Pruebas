@@ -1,6 +1,5 @@
 import { useMemo, useState } from "react"
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react"
-import type { Pokemon } from "../interfaces/Pokemon"
 import type { Region } from "../interfaces/Region"
 import { PokeSprite } from "./PokeSprite"
 import { PokemonDetails } from "./PokemonDetails"
