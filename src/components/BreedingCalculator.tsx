@@ -242,7 +242,6 @@ function BreedingList({
                 const rightParentIndex = leftParentIndex + 1
                 const leftX = ((leftParentIndex + 0.5) / parentCount) * 100
                 const rightX = ((rightParentIndex + 0.5) / parentCount) * 100
-                const childX = ((childIndex + 0.5) / childCount) * 100
                 const midX = (leftX + rightX) / 2
                 const connectorColor = highlighted.has(`${rowIndex}-${leftParentIndex}`) && highlighted.has(`${rowIndex}-${rightParentIndex}`) && highlighted.has(`${rowIndex + 1}-${childIndex}`)
                   ? "#7bea75"
