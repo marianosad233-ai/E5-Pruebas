@@ -180,60 +180,38 @@ function BreedingList({
   completed: Set<string>
   toggle: (row: number, column: number) => void
 }) {
-  // The Hub graph is a true binary tree: every child is centered under a pair
-  // of parents. The connector is therefore drawn per pair, not as one line
-  // across the whole row.
-  const rowHeight = 74
-  const nodeArea = 58
+  // Compact layout like PokeMMO Hub. Each pair of parents connects to
+  // the single child directly below the pair.
+  const rowHeight = 62
+  const graphTop = 2
+  const graphHeight = rows.length * rowHeight
+
+  const itemSize = (rowIndex: number) =>
+    Math.round(15 + (rowIndex / Math.max(rows.length - 1, 1)) * 33)
 
   return (
     <div className="rounded-md bg-[#20252b] px-4 py-6 sm:px-6">
       <div className="mx-auto min-w-[680px] max-w-[1168px]">
         <Legend selected={selected} nature={nature} />
 
-        <div className="relative" style={{ height: rows.length * rowHeight }}>
-          {rows.map((row, rowIndex) => {
-            const top = rowIndex * rowHeight
-            return (
-              <div
-                key={rowIndex}
-                className="absolute left-0 w-full"
-                style={{ top, height: nodeArea }}
-              >
-                <div
-                  className="grid h-full items-start"
-                  style={{
-                    gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
-                  }}
-                >
-                  {row.map((node, columnIndex) => (
-                    <div key={`${rowIndex}-${columnIndex}`} className="flex justify-center pt-1">
-                      <BreedingItem
-                        node={node}
-                        rowIndex={rowIndex}
-                        totalRows={rows.length}
-                        completed={completed.has(`${rowIndex}-${columnIndex}`)}
-                        onClick={() => toggle(rowIndex, columnIndex)}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-
+        <div className="relative" style={{ height: graphHeight }}>
           <svg
-            className="pointer-events-none absolute inset-0 h-full w-full"
-            viewBox="0 0 100 100"
+            className="pointer-events-none absolute inset-0 z-0 h-full w-full overflow-visible"
+            viewBox={`0 0 100 ${graphHeight}`}
             preserveAspectRatio="none"
             aria-hidden="true"
           >
             {rows.slice(0, -1).map((row, rowIndex) => {
               const parentCount = row.length
               const childCount = rows[rowIndex + 1].length
-              const yParent = ((rowIndex * rowHeight) + 28) / (rows.length * rowHeight) * 100
-              const yBranch = ((rowIndex * rowHeight) + 45) / (rows.length * rowHeight) * 100
-              const yChild = (((rowIndex + 1) * rowHeight) + 8) / (rows.length * rowHeight) * 100
+              const parentSize = itemSize(rowIndex)
+              const childSize = itemSize(rowIndex + 1)
+
+              // Use the real circle centers. This prevents the connector
+              // from appearing above/beside the circles.
+              const parentY = graphTop + rowIndex * rowHeight + parentSize / 2 + 4
+              const childY = graphTop + (rowIndex + 1) * rowHeight + childSize / 2 + 4
+              const branchY = (parentY + childY) / 2
 
               return Array.from({ length: childCount }).map((_, childIndex) => {
                 const leftParentIndex = childIndex * 2
@@ -244,16 +222,52 @@ function BreedingList({
                 const midX = (leftX + rightX) / 2
 
                 return (
-                  <g key={`${rowIndex}-${childIndex}`} stroke="#d4d4d4" strokeWidth="0.22" fill="none">
-                    <line x1={leftX} y1={yParent} x2={rightX} y2={yParent} />
-                    <line x1={midX} y1={yParent} x2={midX} y2={yBranch} />
-                    <line x1={midX} y1={yBranch} x2={childX} y2={yBranch} />
-                    <line x1={childX} y1={yBranch} x2={childX} y2={yChild} />
+                  <g
+                    key={`${rowIndex}-${childIndex}`}
+                    stroke="#d4d4d4"
+                    strokeWidth="1.2"
+                    fill="none"
+                    vectorEffect="non-scaling-stroke"
+                  >
+                    <line x1={leftX} y1={parentY} x2={rightX} y2={parentY} />
+                    <line x1={midX} y1={parentY} x2={midX} y2={branchY} />
+                    <line x1={midX} y1={branchY} x2={childX} y2={branchY} />
+                    <line x1={childX} y1={branchY} x2={childX} y2={childY} />
                   </g>
                 )
               })
             })}
           </svg>
+
+          {rows.map((row, rowIndex) => {
+            const size = itemSize(rowIndex)
+            return (
+              <div
+                key={rowIndex}
+                className="absolute left-0 z-10 flex w-full"
+                style={{
+                  top: graphTop + rowIndex * rowHeight,
+                  height: size + 8,
+                }}
+              >
+                {row.map((node, columnIndex) => (
+                  <div
+                    key={`${rowIndex}-${columnIndex}`}
+                    className="flex justify-center"
+                    style={{ width: `${100 / row.length}%` }}
+                  >
+                    <BreedingItem
+                      node={node}
+                      rowIndex={rowIndex}
+                      totalRows={rows.length}
+                      completed={completed.has(`${rowIndex}-${columnIndex}`)}
+                      onClick={() => toggle(rowIndex, columnIndex)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>
