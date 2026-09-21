@@ -432,7 +432,10 @@ export default function PokemonGuide() {
           )}
         </>
       ) : activeSection === "e4-lab" ? (
-        <E4Lab strategyName={activeStrategy === "dingxianyou" ? "Dingxianyou" : "Dingxianyou 2.0"} />
+        <E4Lab
+          strategyName={activeStrategy === "dingxianyou" ? "Dingxianyou" : "Dingxianyou 2.0"}
+          regions={regions}
+        />
       ) : activeSection === "gym" ? (
         <main id="guia" className="pt-8">
           <StrategyGuide key={selectedGymStrategy.id} strategy={selectedGymStrategy} category="Gym Rerun" />

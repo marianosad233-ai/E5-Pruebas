@@ -1,83 +1,19 @@
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react"
 import type { Pokemon } from "../interfaces/Pokemon"
-import type { Region, ConfigLeader } from "../interfaces/Region"
-import { useDynamicImports } from "../hooks/useDynamicImports"
+import type { Region } from "../interfaces/Region"
 import { PokeSprite } from "./PokeSprite"
 import { PokemonDetails } from "./PokemonDetails"
 
 interface E4LabProps {
   strategyName: string
+  regions: Region[]
 }
 
-type LoadedLeader = Omit<ConfigLeader, "pokemons"> & { pokemons: Pokemon[] }
-type LoadedRegion = Omit<Region, "leaders"> & { leaders: LoadedLeader[] }
-
-export default function E4Lab({ strategyName }: E4LabProps) {
-  const [regions, setRegions] = useState<LoadedRegion[]>([])
-  const [selectedRegionId, setSelectedRegionId] = useState<string>("")
-  const [selectedLeaderId, setSelectedLeaderId] = useState<string>("")
+export default function E4Lab({ strategyName, regions }: E4LabProps) {
+  const [selectedRegionId, setSelectedRegionId] = useState<string>(regions[0]?.id ?? "")
+  const [selectedLeaderId, setSelectedLeaderId] = useState<string>(regions[0]?.leaders[0]?.id ?? "")
   const [selectedPokemonId, setSelectedPokemonId] = useState<string>("")
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-  const { getPokemonFiles } = useDynamicImports()
-
-  useEffect(() => {
-    let cancelled = false
-
-    const load = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-        const configModule = await import("../data/config-region.json")
-        const configRegions = configModule.regions || []
-        const loaded: LoadedRegion[] = []
-
-        for (const region of configRegions) {
-          const leaders: LoadedLeader[] = []
-
-          for (const leader of region.leaders) {
-            const files = await getPokemonFiles(region.id, leader.id)
-            const pokemons: Pokemon[] = []
-
-            for (const file of files) {
-              try {
-                const module = await import(`../data/${region.id}/${leader.id}/${file.replace(".json", "")}.json`)
-                const data = module.default || module
-                if (data?.name && Array.isArray(data?.tricks)) {
-                  pokemons.push({
-                    ...data,
-                    id: data.id || file.replace(".json", ""),
-                  })
-                }
-              } catch (pokemonError) {
-                console.error(`E4 LAB: error loading ${region.id}/${leader.id}/${file}`, pokemonError)
-              }
-            }
-
-            leaders.push({ ...leader, pokemons })
-          }
-
-          loaded.push({ ...region, leaders })
-        }
-
-        if (cancelled) return
-        setRegions(loaded)
-        setSelectedRegionId(loaded[0]?.id ?? "")
-        setSelectedLeaderId(loaded[0]?.leaders[0]?.id ?? "")
-      } catch (loadError) {
-        console.error("E4 LAB: error loading data", loadError)
-        if (!cancelled) setError("No se pudieron cargar los datos del E4 LAB.")
-      } finally {
-        if (!cancelled) setLoading(false)
-      }
-    }
-
-    void load()
-    return () => {
-      cancelled = true
-    }
-  }, [getPokemonFiles])
 
   const selectedRegion = useMemo(
     () => regions.find((region) => region.id === selectedRegionId),
@@ -90,7 +26,7 @@ export default function E4Lab({ strategyName }: E4LabProps) {
   )
 
   const selectedPokemon = useMemo(
-    () => selectedLeader?.pokemons.find((pokemon) => pokemon.id === selectedPokemonId) ?? null,
+    () => selectedLeader?.pokemons?.find((pokemon) => pokemon.id === selectedPokemonId) ?? null,
     [selectedLeader, selectedPokemonId]
   )
 
@@ -156,11 +92,7 @@ export default function E4Lab({ strategyName }: E4LabProps) {
         </div>
 
         <div className="p-5 sm:p-7">
-          {loading && <p className="rounded-2xl border border-ink-700 bg-ink-900/50 p-4 text-sm text-mist-400">Cargando las estrategias del E4…</p>}
-          {error && <p className="rounded-2xl border border-red-400/20 bg-red-400/5 p-4 text-sm text-red-200">{error}</p>}
 
-          {!loading && !error && (
-            <>
               <div>
                 <div className="mb-3 flex items-center justify-between gap-3">
                   <div>
@@ -242,8 +174,7 @@ export default function E4Lab({ strategyName }: E4LabProps) {
                   </div>
                 </div>
               )}
-            </>
-          )}
+
         </div>
       </section>
     </main>
