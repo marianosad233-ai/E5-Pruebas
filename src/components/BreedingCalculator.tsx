@@ -19,8 +19,6 @@ const LABELS: Record<IvKey, string> = Object.fromEntries(
   IVS.map((iv) => [iv.key, iv.label]),
 ) as Record<IvKey, string>
 
-// Data/order used by PokeMMO Hub's breedingTable. The five-IV layouts are
-// reproduced exactly; smaller projects follow the same binary breeding tree.
 const RANDOM_TABLE: Record<2 | 3 | 4 | 5, Token[][][]> = {
   2: [
     [[1], [2]],
@@ -46,8 +44,6 @@ const RANDOM_TABLE: Record<2 | 3 | 4 | 5, Token[][][]> = {
   ],
 }
 
-// The nature layout in Hub is the random tree with an additional nature
-// branch. For the five-IV project these values are the exact source layout.
 const NATURE_TABLE: Record<2 | 3 | 4 | 5, Token[][][]> = {
   2: [
     [[0], [1], [1], [2]],
@@ -77,14 +73,15 @@ const NATURE_TABLE: Record<2 | 3 | 4 | 5, Token[][][]> = {
   ],
 }
 
+// Colors match the PokeMMO Hub breeding graph.
 const COLORS: Record<string, string> = {
-  hp: "#66d9a6",
-  atk: "#f26b6b",
-  def: "#e8a95a",
-  spa: "#63a9f5",
-  spd: "#a78bfa",
-  spe: "#f4d35e",
-  nat: "#9ca3af",
+  hp: "#4caf50",
+  atk: "#f5223b",
+  def: "#ff7a18",
+  spa: "#f4d91b",
+  spd: "#f4d91b",
+  spe: "#25c7df",
+  nat: "#8b8f94",
 }
 
 const COSTS = {
@@ -109,7 +106,7 @@ function makeRows(ivCount: 2 | 3 | 4 | 5, nature: boolean, selected: IvKey[]): T
 
 function Legend({ selected, nature }: { selected: IvKey[]; nature: boolean }) {
   return (
-    <div className="mb-7 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-[#adb3b8]">
+    <div className="mb-7 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-[#f1f1f1]">
       {selected.map((stat) => (
         <div key={stat} className="flex items-center gap-2">
           <span className="h-3 w-3 rounded-full" style={{ background: COLORS[stat] }} />
@@ -132,16 +129,15 @@ function BreedingItem({
   totalRows,
   completed,
   onClick,
-  selected,
 }: {
   node: TreeNode
   rowIndex: number
   totalRows: number
   completed: boolean
   onClick: () => void
-  selected: IvKey[]
 }) {
-  const size = Math.round(27 + (rowIndex / Math.max(totalRows - 1, 1)) * 30)
+  // Hub grows the circles as the tree gets closer to the final result.
+  const size = Math.round(15 + (rowIndex / Math.max(totalRows - 1, 1)) * 34)
   const label = node.tokens
     .map((token) => token === "nat" ? "Nature" : LABELS[token as IvKey])
     .join(" + ")
@@ -152,77 +148,112 @@ function BreedingItem({
       aria-label={label}
       title={label}
       onClick={onClick}
-      className="relative z-10 flex shrink-0 overflow-hidden rounded-full bg-[#31363b] p-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50"
+      className="relative z-10 flex shrink-0 overflow-hidden rounded-full p-0 transition-transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-white/50"
       style={{
         width: size,
         height: size,
-        border: `${completed ? Math.max(2, Math.round(size / 9)) : 2}px solid ${completed ? "#8fe388" : "#596168"}`,
-        boxShadow: "0 1px 4px rgba(0,0,0,.35)",
+        border: `${completed ? Math.max(2, Math.round(size / 8)) : 0}px solid #7bea75`,
+        boxShadow: completed ? "0 0 0 2px rgba(123,234,117,.35)" : "none",
       }}
     >
       {node.tokens.map((token, index) => (
-        <span key={`${token}-${index}`} className="h-full flex-1" style={{ background: COLORS[token] ?? COLORS[selected[0]] }} />
+        <span
+          key={`${token}-${index}`}
+          className="h-full flex-1"
+          style={{ background: COLORS[token] ?? "#777" }}
+        />
       ))}
     </button>
   )
 }
 
-function BreedingList({ rows, selected, nature, completed, toggle }: {
+function BreedingList({
+  rows,
+  selected,
+  nature,
+  completed,
+  toggle,
+}: {
   rows: TreeNode[][]
   selected: IvKey[]
   nature: boolean
   completed: Set<string>
   toggle: (row: number, column: number) => void
 }) {
-  return (
-    <div className="rounded-md bg-[#20252b] px-3 py-6 sm:px-5">
-      <div className="mx-auto min-w-[680px] max-w-[1040px]">
-        <Legend selected={selected} nature={nature} />
-        <div className="relative">
-          {rows.map((row, rowIndex) => (
-            <div key={rowIndex} className="relative">
-              <div
-                className="relative grid items-center"
-                style={{ gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`, minHeight: 76 }}
-              >
-                {row.map((node, columnIndex) => (
-                  <div key={`${rowIndex}-${columnIndex}`} className="flex justify-center">
-                    <BreedingItem
-                      node={node}
-                      rowIndex={rowIndex}
-                      totalRows={rows.length}
-                      completed={completed.has(`${rowIndex}-${columnIndex}`)}
-                      onClick={() => toggle(rowIndex, columnIndex)}
-                      selected={selected}
-                    />
-                  </div>
-                ))}
-              </div>
+  // The Hub graph is a true binary tree: every child is centered under a pair
+  // of parents. The connector is therefore drawn per pair, not as one line
+  // across the whole row.
+  const rowHeight = 74
+  const nodeArea = 58
 
-              {rowIndex < rows.length - 1 && (
-                <svg
-                  className="pointer-events-none absolute left-0 top-[52px] h-12 w-full overflow-visible"
-                  viewBox="0 0 100 48"
-                  preserveAspectRatio="none"
-                  aria-hidden="true"
+  return (
+    <div className="rounded-md bg-[#20252b] px-4 py-6 sm:px-6">
+      <div className="mx-auto min-w-[680px] max-w-[1168px]">
+        <Legend selected={selected} nature={nature} />
+
+        <div className="relative" style={{ height: rows.length * rowHeight }}>
+          {rows.map((row, rowIndex) => {
+            const top = rowIndex * rowHeight
+            return (
+              <div
+                key={rowIndex}
+                className="absolute left-0 w-full"
+                style={{ top, height: nodeArea }}
+              >
+                <div
+                  className="grid h-full items-start"
+                  style={{
+                    gridTemplateColumns: `repeat(${row.length}, minmax(0, 1fr))`,
+                  }}
                 >
-                  {row.map((_, parentIndex) => {
-                    const parentX = ((parentIndex + 0.5) / row.length) * 100
-                    const childLeftX = ((parentIndex * 2 + 0.5) / rows[rowIndex + 1].length) * 100
-                    const childRightX = ((parentIndex * 2 + 1.5) / rows[rowIndex + 1].length) * 100
-                    return (
-                      <g key={parentIndex} stroke="#8b9298" strokeWidth="0.55" fill="none">
-                        <line x1={parentX} y1="0" x2={parentX} y2="18" />
-                        <line x1={childLeftX} y1="34" x2={childRightX} y2="34" />
-                        <line x1={parentX} y1="18" x2={childLeftX} y2="34" />
-                        <line x1={parentX} y1="18" x2={childRightX} y2="34" />
-                      </g>
-                    )
-                  })}
-                </svg>
-              )}
-            </div>
-          ))}
+                  {row.map((node, columnIndex) => (
+                    <div key={`${rowIndex}-${columnIndex}`} className="flex justify-center pt-1">
+                      <BreedingItem
+                        node={node}
+                        rowIndex={rowIndex}
+                        totalRows={rows.length}
+                        completed={completed.has(`${rowIndex}-${columnIndex}`)}
+                        onClick={() => toggle(rowIndex, columnIndex)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full"
+            viewBox="0 0 100 100"
+            preserveAspectRatio="none"
+            aria-hidden="true"
+          >
+            {rows.slice(0, -1).map((row, rowIndex) => {
+              const parentCount = row.length
+              const childCount = rows[rowIndex + 1].length
+              const yParent = ((rowIndex * rowHeight) + 28) / (rows.length * rowHeight) * 100
+              const yBranch = ((rowIndex * rowHeight) + 45) / (rows.length * rowHeight) * 100
+              const yChild = (((rowIndex + 1) * rowHeight) + 8) / (rows.length * rowHeight) * 100
+
+              return Array.from({ length: childCount }).map((_, childIndex) => {
+                const leftParentIndex = childIndex * 2
+                const rightParentIndex = leftParentIndex + 1
+                const leftX = ((leftParentIndex + 0.5) / parentCount) * 100
+                const rightX = ((rightParentIndex + 0.5) / parentCount) * 100
+                const childX = ((childIndex + 0.5) / childCount) * 100
+                const midX = (leftX + rightX) / 2
+
+                return (
+                  <g key={`${rowIndex}-${childIndex}`} stroke="#d4d4d4" strokeWidth="0.22" fill="none">
+                    <line x1={leftX} y1={yParent} x2={rightX} y2={yParent} />
+                    <line x1={midX} y1={yParent} x2={midX} y2={yBranch} />
+                    <line x1={midX} y1={yBranch} x2={childX} y2={yBranch} />
+                    <line x1={childX} y1={yBranch} x2={childX} y2={yChild} />
+                  </g>
+                )
+              })
+            })}
+          </svg>
         </div>
       </div>
     </div>
@@ -242,7 +273,7 @@ export default function BreedingCalculator() {
   const totalPokemon = nature ? [0, 3, 7, 15, 31][ivCount] : [0, 2, 4, 8, 16][ivCount]
   const expectedPrice = (nature ? COSTS.nature : COSTS.random)[ivCount]
   const activeSelected = selected.slice(0, ivCount)
-  const rows = useMemo(() => makeRows(ivCount, nature, activeSelected), [ivCount, nature, activeSelected])
+  const rows = useMemo(() => makeRows(ivCount, nature, activeSelected), [ivCount, nature, selected])
 
   const changeCount = (count: 2 | 3 | 4 | 5) => {
     const defaults: IvKey[] = ["hp", "atk", "def", "spd", "spe"]
