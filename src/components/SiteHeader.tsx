@@ -10,10 +10,10 @@ import {
 } from "../config/strategies"
 
 interface SiteHeaderProps {
+  onE4LabClick: () => void
   onBreedingClick: () => void
   onEggMovesClick: () => void
   onBerriesClick: () => void
-  onE4LabClick: () => void
   activeStrategy: StrategyId
   onStrategyChange: (strategy: StrategyId) => void
   activeGymRerunStrategy: GymRerunStrategyId
@@ -29,10 +29,10 @@ export const SiteHeader = ({
   onGymRerunStrategyChange,
   activeRedBattleStrategy,
   onRedBattleStrategyChange,
+  onE4LabClick,
   onBreedingClick,
   onEggMovesClick,
   onBerriesClick,
-  onE4LabClick,
 }: SiteHeaderProps) => {
   const [openMenu, setOpenMenu] = useState<"gym" | "red" | "e4" | "tools" | null>(null)
 
@@ -267,16 +267,17 @@ export const SiteHeader = ({
                     </button>
                   )
                 })}
+
                 <div className="my-1 border-t border-ink-800" />
                 <button
                   type="button"
                   role="menuitem"
                   onClick={() => { onE4LabClick(); setOpenMenu(null) }}
-                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-mist-300 transition-colors hover:bg-violet-600/10 hover:text-violet-200"
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-mist-300 transition-colors hover:bg-ink-800 hover:text-mist-100"
                 >
                   <span>
                     <span className="block text-sm font-semibold">🧪 E4 LAB</span>
-                    <span className="mt-0.5 block text-[11px] text-mist-500">Probar nuevo asistente</span>
+                    <span className="mt-0.5 block text-[11px] text-mist-500">Probar el nuevo asistente</span>
                   </span>
                 </button>
               </div>
@@ -298,8 +299,6 @@ export const SiteHeader = ({
                 <button type="button" onClick={() => { onBreedingClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Crianza</button>
                 <button type="button" onClick={() => { onEggMovesClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Egg Moves Calculator</button>
                 <button type="button" onClick={() => { onBerriesClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Berries Helper</button>
-                <div className="my-1 border-t border-ink-800" />
-                <button type="button" onClick={() => { onE4LabClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-violet-200 hover:bg-violet-600/10">🧪 E4 LAB</button>
               </div>
             )}
           </div>

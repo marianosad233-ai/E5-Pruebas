@@ -48,7 +48,7 @@ export default function PokemonGuide() {
   const [activeStrategy, setActiveStrategy] = useState<StrategyId>("dingxianyou")
   const [activeGymRerunStrategy, setActiveGymRerunStrategy] = useState<GymRerunStrategyId>("six-pillars")
   const [activeRedBattleStrategy, setActiveRedBattleStrategy] = useState<RedBattleStrategyId>("jinxedboon")
-  const [activeSection, setActiveSection] = useState<"e4" | "gym" | "red" | "breeding" | "eggMoves" | "berries" | "e4Lab">("e4")
+  const [activeSection, setActiveSection] = useState<"e4" | "e4-lab" | "gym" | "red" | "breeding" | "eggMoves" | "berries">("e4")
 
   const detailsRef = useRef<HTMLDivElement>(null)
   const regionSectionRef = useRef<HTMLDivElement>(null)
@@ -243,6 +243,12 @@ export default function PokemonGuide() {
           setExpandedLeader(null)
           setSelectedPokemon(null)
         }}
+        onE4LabClick={() => {
+          setActiveSection("e4-lab")
+          setExpandedRegion(null)
+          setExpandedLeader(null)
+          setSelectedPokemon(null)
+        }}
         activeGymRerunStrategy={activeGymRerunStrategy}
         onGymRerunStrategyChange={(strategy) => { setActiveSection("gym"); setActiveGymRerunStrategy(strategy) }}
         activeRedBattleStrategy={activeRedBattleStrategy}
@@ -261,12 +267,6 @@ export default function PokemonGuide() {
         }}
         onBerriesClick={() => {
           setActiveSection("berries")
-          setExpandedRegion(null)
-          setExpandedLeader(null)
-          setSelectedPokemon(null)
-        }}
-        onE4LabClick={() => {
-          setActiveSection("e4Lab")
           setExpandedRegion(null)
           setExpandedLeader(null)
           setSelectedPokemon(null)
@@ -431,6 +431,8 @@ export default function PokemonGuide() {
             />
           )}
         </>
+      ) : activeSection === "e4-lab" ? (
+        <E4Lab strategyName={activeStrategy === "dingxianyou" ? "Dingxianyou" : "Dingxianyou 2.0"} />
       ) : activeSection === "gym" ? (
         <main id="guia" className="pt-8">
           <StrategyGuide key={selectedGymStrategy.id} strategy={selectedGymStrategy} category="Gym Rerun" />
@@ -447,13 +449,9 @@ export default function PokemonGuide() {
         <main id="herramientas" className="pt-8">
           <EggMovesCalculator />
         </main>
-      ) : activeSection === "berries" ? (
+      ) : (
         <main id="herramientas" className="pt-8">
           <BerriesHelper />
-        </main>
-      ) : (
-        <main id="e4-lab" className="pt-8">
-          <E4Lab />
         </main>
       )}
 
