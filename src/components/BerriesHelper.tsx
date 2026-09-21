@@ -7,7 +7,10 @@ import type { BerryData, ItemData, SeedData } from "./Berries/berries.types"
 
 const berries=hubData.berries as BerryData[]
 const items=hubData.items as ItemData[]
-const seeds=hubData.seeds as SeedData[]
+const seeds:SeedData[]=(hubData.seeds as {id:number;key:string;en_name:string}[]).map(seed=>{
+ const parts=seed.key.split("-").slice(0,-1) // quita el "seed" final, deja ["plain","sour"] o ["very","spicy"]
+ return {id:seed.id,en_name:seed.en_name,type:parts[1]??parts[0]??""}
+})
 const itemName=(id:number)=>items.find(item=>item.id===id)?.en_name??`Berry #${id}`
 
 function BerriesContent(){

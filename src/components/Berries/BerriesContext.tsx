@@ -9,7 +9,7 @@ const FAVORITES = "berriesFavorites"
 export function BerriesProvider({children}:{children:ReactNode}) {
   const [planted,setPlanted] = useState<PlantedBerry[]>([])
   const [favorites,setFavorites] = useState<number[]>([])
-  useEffect(()=>{try{const p=localStorage.getItem(STORAGE);const f=localStorage.getItem(FAVORITES);if(p)setPlanted(JSON.parse(p));if(f)setFavorites(JSON.parse(f))}catch{}}
+  useEffect(()=>{try{const p=localStorage.getItem(STORAGE);const f=localStorage.getItem(FAVORITES);if(p)setPlanted(JSON.parse(p));if(f)setFavorites(JSON.parse(f))}catch{/* localStorage vacío o corrupto: se ignora y se arranca de cero */}}
   ,[])
   useEffect(()=>{localStorage.setItem(STORAGE,JSON.stringify(planted))},[planted])
   useEffect(()=>{localStorage.setItem(FAVORITES,JSON.stringify(favorites))},[favorites])

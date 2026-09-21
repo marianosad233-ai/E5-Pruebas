@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { HelpCircle } from "lucide-react"
-import { BreedingProvider, type IvKey, useBreeding } from "./Breeding/BreedingContext"
+import { BreedingProvider, useBreeding } from "./Breeding/BreedingContext"
+import type { IvKey } from "./Breeding/breeding.types"
 import { FormItemBreeding } from "./Breeding/FormItemBreeding"
 import { BreedingList } from "./Breeding/BreedingList"
 
@@ -16,7 +17,7 @@ function BreedingContent() {
   const [showHelp, setShowHelp] = useState(false)
   const [error, setError] = useState(false)
   const groups = useMemo(() => (breedingConfig.nature ? FORM_VALUES.nature : FORM_VALUES.random)[breedingConfig.ivsCount], [breedingConfig.nature, breedingConfig.ivsCount])
-  const totalPokemon = groups.reduce((a,b) => a+b, 0)
+  const totalPokemon = groups.reduce<number>((a,b) => a+b, 0)
   const expectedPrice = (breedingConfig.nature ? COSTS.nature : COSTS.random)[breedingConfig.ivsCount]
   const values = Array.from({length: 5}, (_,i) => (breedingConfig.iv[i+1] as IvKey | false) || DEFAULT[i])
 
