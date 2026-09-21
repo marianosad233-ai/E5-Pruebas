@@ -10,8 +10,8 @@ interface E4LabProps {
   strategyName: string
 }
 
-type LoadedLeader = ConfigLeader & { pokemons: Pokemon[] }
-type LoadedRegion = Region & { leaders: LoadedLeader[] }
+type LoadedLeader = Omit<ConfigLeader, "pokemons"> & { pokemons: Pokemon[] }
+type LoadedRegion = Omit<Region, "leaders"> & { leaders: LoadedLeader[] }
 
 export default function E4Lab({ strategyName }: E4LabProps) {
   const [regions, setRegions] = useState<LoadedRegion[]>([])
@@ -93,6 +93,8 @@ export default function E4Lab({ strategyName }: E4LabProps) {
     () => selectedLeader?.pokemons.find((pokemon) => pokemon.id === selectedPokemonId) ?? null,
     [selectedLeader, selectedPokemonId]
   )
+
+  const leaderPokemons = selectedLeader?.pokemons ?? []
 
   const chooseRegion = (regionId: string) => {
     const region = regions.find((item) => item.id === regionId)
@@ -206,7 +208,7 @@ export default function E4Lab({ strategyName }: E4LabProps) {
                     <span className="text-xs text-mist-600">{selectedRegion?.name} / {selectedLeader.name}</span>
                   </div>
                   <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 md:grid-cols-7">
-                    {selectedLeader.pokemons.map((pokemon) => (
+                    {leaderPokemons.map((pokemon) => (
                       <button
                         key={pokemon.id}
                         type="button"
@@ -218,7 +220,7 @@ export default function E4Lab({ strategyName }: E4LabProps) {
                       </button>
                     ))}
                   </div>
-                  {selectedLeader.pokemons.length === 0 && <p className="rounded-xl border border-dashed border-ink-700 p-5 text-center text-sm text-mist-500">No hay datos de Pokémon para este líder.</p>}
+                  {leaderPokemons.length === 0 && <p className="rounded-xl border border-dashed border-ink-700 p-5 text-center text-sm text-mist-500">No hay datos de Pokémon para este líder.</p>}
                 </div>
               )}
 
