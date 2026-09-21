@@ -1,1 +1,1402 @@
-{"berries":[{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":80,"nature_power_type":10,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":3,"sweet_degree":0,"wither_time":8,"item_id":600},{"bitter_degree":0,"dry_degree":3,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":80,"nature_power_type":11,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":601},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":80,"nature_power_type":13,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":3,"wither_time":8,"item_id":602},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":80,"nature_power_type":15,"other_water_time":2,"reduce_time":2,"sour_degree":3,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":603},{"bitter_degree":3,"dry_degree":0,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":80,"nature_power_type":12,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":604},{"bitter_degree":0,"dry_degree":1,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":80,"nature_power_type":5,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":1,"sweet_degree":1,"wither_time":8,"item_id":605},{"bitter_degree":1,"dry_degree":1,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":80,"nature_power_type":4,"other_water_time":2,"reduce_time":2,"sour_degree":1,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":606},{"bitter_degree":0,"dry_degree":2,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":80,"nature_power_type":9,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":1,"sweet_degree":0,"wither_time":8,"item_id":607},{"bitter_degree":0,"dry_degree":1,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":90,"nature_power_type":10,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":608},{"bitter_degree":1,"dry_degree":0,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":90,"nature_power_type":11,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":609},{"bitter_degree":1,"dry_degree":0,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":90,"nature_power_type":13,"other_water_time":2,"reduce_time":2,"sour_degree":2,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":610},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":16,"max_harvest":6,"min_harvest":3,"nature_power_power":90,"nature_power_type":12,"other_water_time":2,"reduce_time":2,"sour_degree":2,"spicy_degree":1,"sweet_degree":0,"wither_time":8,"item_id":611},{"bitter_degree":1,"dry_degree":0,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":5,"nature_power_power":80,"nature_power_type":2,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":2,"sweet_degree":1,"wither_time":8,"item_id":612},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":80,"nature_power_type":7,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":4,"sweet_degree":0,"wither_time":8,"item_id":613},{"bitter_degree":0,"dry_degree":4,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":80,"nature_power_type":6,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":614},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":80,"nature_power_type":8,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":4,"wither_time":8,"item_id":615},{"bitter_degree":4,"dry_degree":0,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":80,"nature_power_type":16,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":616},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":80,"nature_power_type":17,"other_water_time":2,"reduce_time":2,"sour_degree":4,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":617},{"bitter_degree":0,"dry_degree":3,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":90,"nature_power_type":7,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":1,"wither_time":8,"item_id":618},{"bitter_degree":1,"dry_degree":0,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":90,"nature_power_type":6,"other_water_time":2,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":3,"wither_time":8,"item_id":619},{"bitter_degree":3,"dry_degree":0,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":90,"nature_power_type":8,"other_water_time":2,"reduce_time":2,"sour_degree":1,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":620},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":20,"max_harvest":7,"min_harvest":4,"nature_power_power":90,"nature_power_type":16,"other_water_time":2,"reduce_time":2,"sour_degree":3,"spicy_degree":1,"sweet_degree":0,"wither_time":8,"item_id":621},{"bitter_degree":0,"dry_degree":1,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":90,"nature_power_type":17,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":4,"sweet_degree":0,"wither_time":8,"item_id":622},{"bitter_degree":0,"dry_degree":4,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":90,"nature_power_type":9,"other_water_time":2.5,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":1,"wither_time":8,"item_id":623},{"bitter_degree":1,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":100,"nature_power_type":10,"other_water_time":2.5,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":4,"wither_time":8,"item_id":624},{"bitter_degree":4,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":100,"nature_power_type":11,"other_water_time":3,"reduce_time":2,"sour_degree":1,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":625},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":100,"nature_power_type":13,"other_water_time":3,"reduce_time":2,"sour_degree":4,"spicy_degree":1,"sweet_degree":0,"wither_time":8,"item_id":626},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":10,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":3,"sweet_degree":2,"wither_time":8,"item_id":627},{"bitter_degree":2,"dry_degree":3,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":11,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":628},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":13,"other_water_time":3,"reduce_time":2,"sour_degree":2,"spicy_degree":0,"sweet_degree":3,"wither_time":8,"item_id":629},{"bitter_degree":3,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":12,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":2,"sweet_degree":0,"wither_time":8,"item_id":630},{"bitter_degree":0,"dry_degree":2,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":15,"other_water_time":3,"reduce_time":2,"sour_degree":3,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":631},{"bitter_degree":2,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":2,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":3,"sweet_degree":0,"wither_time":8,"item_id":632},{"bitter_degree":0,"dry_degree":3,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":4,"other_water_time":3,"reduce_time":2,"sour_degree":2,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":633},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":5,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":2,"sweet_degree":3,"wither_time":8,"item_id":634},{"bitter_degree":3,"dry_degree":2,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":3,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":635},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":14,"other_water_time":3,"reduce_time":2,"sour_degree":3,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":636},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":7,"other_water_time":3,"reduce_time":2,"sour_degree":2,"spicy_degree":3,"sweet_degree":0,"wither_time":8,"item_id":637},{"bitter_degree":0,"dry_degree":3,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":6,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":2,"sweet_degree":0,"wither_time":8,"item_id":638},{"bitter_degree":0,"dry_degree":2,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":8,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":3,"wither_time":8,"item_id":639},{"bitter_degree":3,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":16,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":640},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":17,"other_water_time":3,"reduce_time":2,"sour_degree":3,"spicy_degree":2,"sweet_degree":0,"wither_time":8,"item_id":641},{"bitter_degree":0,"dry_degree":2,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":9,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":3,"sweet_degree":0,"wither_time":8,"item_id":642},{"bitter_degree":0,"dry_degree":3,"first_water_time":3,"grow_time":42,"max_harvest":9,"min_harvest":7,"nature_power_power":80,"nature_power_type":1,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":643},{"bitter_degree":0,"dry_degree":2,"first_water_time":3,"grow_time":42,"max_harvest":10,"min_harvest":7,"nature_power_power":100,"nature_power_type":7,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":4,"sweet_degree":0,"wither_time":8,"item_id":644},{"bitter_degree":1,"dry_degree":0,"first_water_time":3,"grow_time":44,"max_harvest":9,"min_harvest":7,"nature_power_power":90,"nature_power_type":15,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":3,"sweet_degree":0,"wither_time":8,"item_id":645},{"bitter_degree":0,"dry_degree":3,"first_water_time":3,"grow_time":44,"max_harvest":9,"min_harvest":7,"nature_power_power":90,"nature_power_type":2,"other_water_time":3,"reduce_time":2,"sour_degree":1,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":646},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":44,"max_harvest":9,"min_harvest":7,"nature_power_power":90,"nature_power_type":4,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":1,"sweet_degree":3,"wither_time":8,"item_id":647},{"bitter_degree":3,"dry_degree":1,"first_water_time":3,"grow_time":44,"max_harvest":9,"min_harvest":7,"nature_power_power":90,"nature_power_type":5,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":648},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":44,"max_harvest":9,"min_harvest":7,"nature_power_power":90,"nature_power_type":3,"other_water_time":3,"reduce_time":2,"sour_degree":3,"spicy_degree":0,"sweet_degree":1,"wither_time":8,"item_id":649},{"bitter_degree":0,"dry_degree":1,"first_water_time":3,"grow_time":44,"max_harvest":9,"min_harvest":7,"nature_power_power":90,"nature_power_type":14,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":3,"sweet_degree":0,"wither_time":8,"item_id":650},{"bitter_degree":0,"dry_degree":4,"first_water_time":3,"grow_time":44,"max_harvest":10,"min_harvest":7,"nature_power_power":100,"nature_power_type":6,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":651},{"bitter_degree":2,"dry_degree":0,"first_water_time":3,"grow_time":44,"max_harvest":10,"min_harvest":7,"nature_power_power":100,"nature_power_type":8,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":4,"wither_time":8,"item_id":652},{"bitter_degree":4,"dry_degree":0,"first_water_time":3,"grow_time":44,"max_harvest":10,"min_harvest":7,"nature_power_power":100,"nature_power_type":16,"other_water_time":3,"reduce_time":2,"sour_degree":2,"spicy_degree":0,"sweet_degree":0,"wither_time":8,"item_id":653},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":44,"max_harvest":10,"min_harvest":7,"nature_power_power":100,"nature_power_type":17,"other_water_time":3,"reduce_time":2,"sour_degree":4,"spicy_degree":2,"sweet_degree":0,"wither_time":8,"item_id":654},{"bitter_degree":0,"dry_degree":2,"first_water_time":3,"grow_time":44,"max_harvest":10,"min_harvest":7,"nature_power_power":80,"nature_power_type":3,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":2,"sweet_degree":2,"wither_time":8,"item_id":655},{"bitter_degree":2,"dry_degree":0,"first_water_time":3,"grow_time":44,"max_harvest":10,"min_harvest":7,"nature_power_power":80,"nature_power_type":14,"other_water_time":3,"reduce_time":2,"sour_degree":2,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":656},{"bitter_degree":0,"dry_degree":1,"first_water_time":3,"grow_time":67,"max_harvest":13,"min_harvest":10,"nature_power_power":100,"nature_power_type":12,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":2,"sweet_degree":2,"wither_time":8,"item_id":657},{"bitter_degree":2,"dry_degree":2,"first_water_time":3,"grow_time":67,"max_harvest":13,"min_harvest":10,"nature_power_power":100,"nature_power_type":15,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":1,"wither_time":8,"item_id":658},{"bitter_degree":1,"dry_degree":0,"first_water_time":3,"grow_time":67,"max_harvest":13,"min_harvest":10,"nature_power_power":100,"nature_power_type":2,"other_water_time":3,"reduce_time":2,"sour_degree":2,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":659},{"bitter_degree":2,"dry_degree":0,"first_water_time":3,"grow_time":67,"max_harvest":13,"min_harvest":10,"nature_power_power":100,"nature_power_type":4,"other_water_time":3,"reduce_time":2,"sour_degree":1,"spicy_degree":2,"sweet_degree":0,"wither_time":8,"item_id":660},{"bitter_degree":0,"dry_degree":2,"first_water_time":3,"grow_time":67,"max_harvest":13,"min_harvest":10,"nature_power_power":100,"nature_power_type":5,"other_water_time":3,"reduce_time":2,"sour_degree":2,"spicy_degree":1,"sweet_degree":0,"wither_time":8,"item_id":661},{"bitter_degree":2,"dry_degree":2,"first_water_time":3,"grow_time":67,"max_harvest":13,"min_harvest":11,"nature_power_power":100,"nature_power_type":14,"other_water_time":3,"reduce_time":2,"sour_degree":0,"spicy_degree":0,"sweet_degree":2,"wither_time":8,"item_id":662},{"bitter_degree":0,"dry_degree":0,"first_water_time":3,"grow_time":67,"max_harvest":13,"min_harvest":11,"nature_power_power":100,"nature_power_type":3,"other_water_time":3,"reduce_time":2,"sour_degree":2,"spicy_degree":2,"sweet_degree":2,"wither_time":8,"item_id":663}],"items":[{"id":600,"en_name":"Cheri Berry"},{"id":601,"en_name":"Chesto Berry"},{"id":602,"en_name":"Pecha Berry"},{"id":603,"en_name":"Aspear Berry"},{"id":604,"en_name":"Rawst Berry"},{"id":605,"en_name":"Persim Berry"},{"id":606,"en_name":"Oran Berry"},{"id":607,"en_name":"Razz Berry"},{"id":608,"en_name":"Bluk Berry"},{"id":609,"en_name":"Nanab Berry"},{"id":610,"en_name":"Wepear Berry"},{"id":611,"en_name":"Pinap Berry"},{"id":612,"en_name":"Leppa Berry"},{"id":613,"en_name":"Figy Berry"},{"id":614,"en_name":"Wiki Berry"},{"id":615,"en_name":"Mago Berry"},{"id":616,"en_name":"Aguav Berry"},{"id":617,"en_name":"Iapapa Berry"},{"id":618,"en_name":"Cornn Berry"},{"id":619,"en_name":"Magost Berry"},{"id":620,"en_name":"Rabuta Berry"},{"id":621,"en_name":"Nomel Berry"},{"id":622,"en_name":"Spelon Berry"},{"id":623,"en_name":"Pamtre Berry"},{"id":624,"en_name":"Watmel Berry"},{"id":625,"en_name":"Durin Berry"},{"id":626,"en_name":"Belue Berry"},{"id":627,"en_name":"Occa Berry"},{"id":628,"en_name":"Passho Berry"},{"id":629,"en_name":"Wacan Berry"},{"id":630,"en_name":"Rindo Berry"},{"id":631,"en_name":"Yache Berry"},{"id":632,"en_name":"Chople Berry"},{"id":633,"en_name":"Kebia Berry"},{"id":634,"en_name":"Shuca Berry"},{"id":635,"en_name":"Coba Berry"},{"id":636,"en_name":"Payapa Berry"},{"id":637,"en_name":"Tanga Berry"},{"id":638,"en_name":"Charti Berry"},{"id":639,"en_name":"Kasib Berry"},{"id":640,"en_name":"Haban Berry"},{"id":641,"en_name":"Colbur Berry"},{"id":642,"en_name":"Babiri Berry"},{"id":643,"en_name":"Chilan Berry"},{"id":644,"en_name":"Enigma Berry"},{"id":645,"en_name":"Pomeg Berry"},{"id":646,"en_name":"Kelpsy Berry"},{"id":647,"en_name":"Qualot Berry"},{"id":648,"en_name":"Hondew Berry"},{"id":649,"en_name":"Grepa Berry"},{"id":650,"en_name":"Tamato Berry"},{"id":651,"en_name":"Micle Berry"},{"id":652,"en_name":"Custap Berry"},{"id":653,"en_name":"Jaboca Berry"},{"id":654,"en_name":"Rowap Berry"},{"id":655,"en_name":"Lum Berry"},{"id":656,"en_name":"Sitrus Berry"},{"id":657,"en_name":"Liechi Berry"},{"id":658,"en_name":"Ganlon Berry"},{"id":659,"en_name":"Salac Berry"},{"id":660,"en_name":"Petaya Berry"},{"id":661,"en_name":"Apicot Berry"},{"id":662,"en_name":"Starf Berry"},{"id":663,"en_name":"Lansat Berry"}],"seeds":[{"id":701,"key":"plain-sour-seed","en_name":"Plain-Sour-Seed","type":"sour","value":1},{"id":702,"key":"plain-sweet-seed","en_name":"Plain-Sweet-Seed","type":"sweet","value":1},{"id":703,"key":"plain-bitter-seed","en_name":"Plain-Bitter-Seed","type":"bitter","value":1},{"id":704,"key":"plain-spicy-seed","en_name":"Plain-Spicy-Seed","type":"spicy","value":1},{"id":705,"key":"plain-dry-seed","en_name":"Plain-Dry-Seed","type":"dry","value":1},{"id":706,"key":"very-sour-seed","en_name":"Very-Sour-Seed","type":"sour","value":2},{"id":707,"key":"very-sweet-seed","en_name":"Very-Sweet-Seed","type":"sweet","value":2},{"id":708,"key":"very-bitter-seed","en_name":"Very-Bitter-Seed","type":"bitter","value":2},{"id":709,"key":"very-spicy-seed","en_name":"Very-Spicy-Seed","type":"spicy","value":2},{"id":710,"key":"very-dry-seed","en_name":"Very-Dry-Seed","type":"dry","value":2}]}
+{
+  "berries": [
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 80,
+      "nature_power_type": 10,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 3,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 600
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 3,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 80,
+      "nature_power_type": 11,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 601
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 80,
+      "nature_power_type": 13,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 3,
+      "wither_time": 8,
+      "item_id": 602
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 80,
+      "nature_power_type": 15,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 3,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 603
+    },
+    {
+      "bitter_degree": 3,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 80,
+      "nature_power_type": 12,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 604
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 1,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 80,
+      "nature_power_type": 5,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 1,
+      "sweet_degree": 1,
+      "wither_time": 8,
+      "item_id": 605
+    },
+    {
+      "bitter_degree": 1,
+      "dry_degree": 1,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 80,
+      "nature_power_type": 4,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 1,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 606
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 80,
+      "nature_power_type": 9,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 1,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 607
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 1,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 90,
+      "nature_power_type": 10,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 608
+    },
+    {
+      "bitter_degree": 1,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 90,
+      "nature_power_type": 11,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 609
+    },
+    {
+      "bitter_degree": 1,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 90,
+      "nature_power_type": 13,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 610
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 16,
+      "max_harvest": 6,
+      "min_harvest": 3,
+      "nature_power_power": 90,
+      "nature_power_type": 12,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 1,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 611
+    },
+    {
+      "bitter_degree": 1,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 5,
+      "nature_power_power": 80,
+      "nature_power_type": 2,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 2,
+      "sweet_degree": 1,
+      "wither_time": 8,
+      "item_id": 612
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 80,
+      "nature_power_type": 7,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 4,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 613
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 4,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 80,
+      "nature_power_type": 6,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 614
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 80,
+      "nature_power_type": 8,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 4,
+      "wither_time": 8,
+      "item_id": 615
+    },
+    {
+      "bitter_degree": 4,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 80,
+      "nature_power_type": 16,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 616
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 80,
+      "nature_power_type": 17,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 4,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 617
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 3,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 90,
+      "nature_power_type": 7,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 1,
+      "wither_time": 8,
+      "item_id": 618
+    },
+    {
+      "bitter_degree": 1,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 90,
+      "nature_power_type": 6,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 3,
+      "wither_time": 8,
+      "item_id": 619
+    },
+    {
+      "bitter_degree": 3,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 90,
+      "nature_power_type": 8,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 1,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 620
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 20,
+      "max_harvest": 7,
+      "min_harvest": 4,
+      "nature_power_power": 90,
+      "nature_power_type": 16,
+      "other_water_time": 2,
+      "reduce_time": 2,
+      "sour_degree": 3,
+      "spicy_degree": 1,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 621
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 1,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 90,
+      "nature_power_type": 17,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 4,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 622
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 4,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 90,
+      "nature_power_type": 9,
+      "other_water_time": 2.5,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 1,
+      "wither_time": 8,
+      "item_id": 623
+    },
+    {
+      "bitter_degree": 1,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 100,
+      "nature_power_type": 10,
+      "other_water_time": 2.5,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 4,
+      "wither_time": 8,
+      "item_id": 624
+    },
+    {
+      "bitter_degree": 4,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 100,
+      "nature_power_type": 11,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 1,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 625
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 100,
+      "nature_power_type": 13,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 4,
+      "spicy_degree": 1,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 626
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 10,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 3,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 627
+    },
+    {
+      "bitter_degree": 2,
+      "dry_degree": 3,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 11,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 628
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 13,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 0,
+      "sweet_degree": 3,
+      "wither_time": 8,
+      "item_id": 629
+    },
+    {
+      "bitter_degree": 3,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 12,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 2,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 630
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 15,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 3,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 631
+    },
+    {
+      "bitter_degree": 2,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 2,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 3,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 632
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 3,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 4,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 633
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 5,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 2,
+      "sweet_degree": 3,
+      "wither_time": 8,
+      "item_id": 634
+    },
+    {
+      "bitter_degree": 3,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 3,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 635
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 14,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 3,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 636
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 7,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 3,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 637
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 3,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 6,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 2,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 638
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 8,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 3,
+      "wither_time": 8,
+      "item_id": 639
+    },
+    {
+      "bitter_degree": 3,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 16,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 640
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 17,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 3,
+      "spicy_degree": 2,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 641
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 9,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 3,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 642
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 3,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 1,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 643
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 42,
+      "max_harvest": 10,
+      "min_harvest": 7,
+      "nature_power_power": 100,
+      "nature_power_type": 7,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 4,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 644
+    },
+    {
+      "bitter_degree": 1,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 90,
+      "nature_power_type": 15,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 3,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 645
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 3,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 90,
+      "nature_power_type": 2,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 1,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 646
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 90,
+      "nature_power_type": 4,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 1,
+      "sweet_degree": 3,
+      "wither_time": 8,
+      "item_id": 647
+    },
+    {
+      "bitter_degree": 3,
+      "dry_degree": 1,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 90,
+      "nature_power_type": 5,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 648
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 90,
+      "nature_power_type": 3,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 3,
+      "spicy_degree": 0,
+      "sweet_degree": 1,
+      "wither_time": 8,
+      "item_id": 649
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 1,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 9,
+      "min_harvest": 7,
+      "nature_power_power": 90,
+      "nature_power_type": 14,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 3,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 650
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 4,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 10,
+      "min_harvest": 7,
+      "nature_power_power": 100,
+      "nature_power_type": 6,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 651
+    },
+    {
+      "bitter_degree": 2,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 10,
+      "min_harvest": 7,
+      "nature_power_power": 100,
+      "nature_power_type": 8,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 4,
+      "wither_time": 8,
+      "item_id": 652
+    },
+    {
+      "bitter_degree": 4,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 10,
+      "min_harvest": 7,
+      "nature_power_power": 100,
+      "nature_power_type": 16,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 0,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 653
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 10,
+      "min_harvest": 7,
+      "nature_power_power": 100,
+      "nature_power_type": 17,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 4,
+      "spicy_degree": 2,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 654
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 10,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 3,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 2,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 655
+    },
+    {
+      "bitter_degree": 2,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 44,
+      "max_harvest": 10,
+      "min_harvest": 7,
+      "nature_power_power": 80,
+      "nature_power_type": 14,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 656
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 1,
+      "first_water_time": 3,
+      "grow_time": 67,
+      "max_harvest": 13,
+      "min_harvest": 10,
+      "nature_power_power": 100,
+      "nature_power_type": 12,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 2,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 657
+    },
+    {
+      "bitter_degree": 2,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 67,
+      "max_harvest": 13,
+      "min_harvest": 10,
+      "nature_power_power": 100,
+      "nature_power_type": 15,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 1,
+      "wither_time": 8,
+      "item_id": 658
+    },
+    {
+      "bitter_degree": 1,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 67,
+      "max_harvest": 13,
+      "min_harvest": 10,
+      "nature_power_power": 100,
+      "nature_power_type": 2,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 659
+    },
+    {
+      "bitter_degree": 2,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 67,
+      "max_harvest": 13,
+      "min_harvest": 10,
+      "nature_power_power": 100,
+      "nature_power_type": 4,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 1,
+      "spicy_degree": 2,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 660
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 67,
+      "max_harvest": 13,
+      "min_harvest": 10,
+      "nature_power_power": 100,
+      "nature_power_type": 5,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 1,
+      "sweet_degree": 0,
+      "wither_time": 8,
+      "item_id": 661
+    },
+    {
+      "bitter_degree": 2,
+      "dry_degree": 2,
+      "first_water_time": 3,
+      "grow_time": 67,
+      "max_harvest": 13,
+      "min_harvest": 11,
+      "nature_power_power": 100,
+      "nature_power_type": 14,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 0,
+      "spicy_degree": 0,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 662
+    },
+    {
+      "bitter_degree": 0,
+      "dry_degree": 0,
+      "first_water_time": 3,
+      "grow_time": 67,
+      "max_harvest": 13,
+      "min_harvest": 11,
+      "nature_power_power": 100,
+      "nature_power_type": 3,
+      "other_water_time": 3,
+      "reduce_time": 2,
+      "sour_degree": 2,
+      "spicy_degree": 2,
+      "sweet_degree": 2,
+      "wither_time": 8,
+      "item_id": 663
+    }
+  ],
+  "items": [
+    {
+      "id": 600,
+      "en_name": "Cheri Berry"
+    },
+    {
+      "id": 601,
+      "en_name": "Chesto Berry"
+    },
+    {
+      "id": 602,
+      "en_name": "Pecha Berry"
+    },
+    {
+      "id": 603,
+      "en_name": "Aspear Berry"
+    },
+    {
+      "id": 604,
+      "en_name": "Rawst Berry"
+    },
+    {
+      "id": 605,
+      "en_name": "Persim Berry"
+    },
+    {
+      "id": 606,
+      "en_name": "Oran Berry"
+    },
+    {
+      "id": 607,
+      "en_name": "Razz Berry"
+    },
+    {
+      "id": 608,
+      "en_name": "Bluk Berry"
+    },
+    {
+      "id": 609,
+      "en_name": "Nanab Berry"
+    },
+    {
+      "id": 610,
+      "en_name": "Wepear Berry"
+    },
+    {
+      "id": 611,
+      "en_name": "Pinap Berry"
+    },
+    {
+      "id": 612,
+      "en_name": "Leppa Berry"
+    },
+    {
+      "id": 613,
+      "en_name": "Figy Berry"
+    },
+    {
+      "id": 614,
+      "en_name": "Wiki Berry"
+    },
+    {
+      "id": 615,
+      "en_name": "Mago Berry"
+    },
+    {
+      "id": 616,
+      "en_name": "Aguav Berry"
+    },
+    {
+      "id": 617,
+      "en_name": "Iapapa Berry"
+    },
+    {
+      "id": 618,
+      "en_name": "Cornn Berry"
+    },
+    {
+      "id": 619,
+      "en_name": "Magost Berry"
+    },
+    {
+      "id": 620,
+      "en_name": "Rabuta Berry"
+    },
+    {
+      "id": 621,
+      "en_name": "Nomel Berry"
+    },
+    {
+      "id": 622,
+      "en_name": "Spelon Berry"
+    },
+    {
+      "id": 623,
+      "en_name": "Pamtre Berry"
+    },
+    {
+      "id": 624,
+      "en_name": "Watmel Berry"
+    },
+    {
+      "id": 625,
+      "en_name": "Durin Berry"
+    },
+    {
+      "id": 626,
+      "en_name": "Belue Berry"
+    },
+    {
+      "id": 627,
+      "en_name": "Occa Berry"
+    },
+    {
+      "id": 628,
+      "en_name": "Passho Berry"
+    },
+    {
+      "id": 629,
+      "en_name": "Wacan Berry"
+    },
+    {
+      "id": 630,
+      "en_name": "Rindo Berry"
+    },
+    {
+      "id": 631,
+      "en_name": "Yache Berry"
+    },
+    {
+      "id": 632,
+      "en_name": "Chople Berry"
+    },
+    {
+      "id": 633,
+      "en_name": "Kebia Berry"
+    },
+    {
+      "id": 634,
+      "en_name": "Shuca Berry"
+    },
+    {
+      "id": 635,
+      "en_name": "Coba Berry"
+    },
+    {
+      "id": 636,
+      "en_name": "Payapa Berry"
+    },
+    {
+      "id": 637,
+      "en_name": "Tanga Berry"
+    },
+    {
+      "id": 638,
+      "en_name": "Charti Berry"
+    },
+    {
+      "id": 639,
+      "en_name": "Kasib Berry"
+    },
+    {
+      "id": 640,
+      "en_name": "Haban Berry"
+    },
+    {
+      "id": 641,
+      "en_name": "Colbur Berry"
+    },
+    {
+      "id": 642,
+      "en_name": "Babiri Berry"
+    },
+    {
+      "id": 643,
+      "en_name": "Chilan Berry"
+    },
+    {
+      "id": 644,
+      "en_name": "Enigma Berry"
+    },
+    {
+      "id": 645,
+      "en_name": "Pomeg Berry"
+    },
+    {
+      "id": 646,
+      "en_name": "Kelpsy Berry"
+    },
+    {
+      "id": 647,
+      "en_name": "Qualot Berry"
+    },
+    {
+      "id": 648,
+      "en_name": "Hondew Berry"
+    },
+    {
+      "id": 649,
+      "en_name": "Grepa Berry"
+    },
+    {
+      "id": 650,
+      "en_name": "Tamato Berry"
+    },
+    {
+      "id": 651,
+      "en_name": "Micle Berry"
+    },
+    {
+      "id": 652,
+      "en_name": "Custap Berry"
+    },
+    {
+      "id": 653,
+      "en_name": "Jaboca Berry"
+    },
+    {
+      "id": 654,
+      "en_name": "Rowap Berry"
+    },
+    {
+      "id": 655,
+      "en_name": "Lum Berry"
+    },
+    {
+      "id": 656,
+      "en_name": "Sitrus Berry"
+    },
+    {
+      "id": 657,
+      "en_name": "Liechi Berry"
+    },
+    {
+      "id": 658,
+      "en_name": "Ganlon Berry"
+    },
+    {
+      "id": 659,
+      "en_name": "Salac Berry"
+    },
+    {
+      "id": 660,
+      "en_name": "Petaya Berry"
+    },
+    {
+      "id": 661,
+      "en_name": "Apicot Berry"
+    },
+    {
+      "id": 662,
+      "en_name": "Starf Berry"
+    },
+    {
+      "id": 663,
+      "en_name": "Lansat Berry"
+    }
+  ],
+  "seeds": [
+    {
+      "id": 701,
+      "key": "plain-sour-seed",
+      "en_name": "Plain-Sour-Seed"
+    },
+    {
+      "id": 702,
+      "key": "plain-sweet-seed",
+      "en_name": "Plain-Sweet-Seed"
+    },
+    {
+      "id": 703,
+      "key": "plain-bitter-seed",
+      "en_name": "Plain-Bitter-Seed"
+    },
+    {
+      "id": 704,
+      "key": "plain-spicy-seed",
+      "en_name": "Plain-Spicy-Seed"
+    },
+    {
+      "id": 705,
+      "key": "plain-dry-seed",
+      "en_name": "Plain-Dry-Seed"
+    },
+    {
+      "id": 706,
+      "key": "very-sour-seed",
+      "en_name": "Very-Sour-Seed"
+    },
+    {
+      "id": 707,
+      "key": "very-sweet-seed",
+      "en_name": "Very-Sweet-Seed"
+    },
+    {
+      "id": 708,
+      "key": "very-bitter-seed",
+      "en_name": "Very-Bitter-Seed"
+    },
+    {
+      "id": 709,
+      "key": "very-spicy-seed",
+      "en_name": "Very-Spicy-Seed"
+    },
+    {
+      "id": 710,
+      "key": "very-dry-seed",
+      "en_name": "Very-Dry-Seed"
+    }
+  ]
+}

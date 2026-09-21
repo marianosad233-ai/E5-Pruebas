@@ -4,7 +4,7 @@ import hubData from "../data/berriesHub.json"
 
 interface BerryData { item_id:number; bitter_degree:number; dry_degree:number; sour_degree:number; spicy_degree:number; sweet_degree:number; first_water_time:number; other_water_time:number; grow_time:number; wither_time:number; min_harvest:number; max_harvest:number }
 interface ItemData { id:number; en_name:string }
-interface SeedData { id:number; type:string; value:number; en_name:string }
+interface SeedData { id:number; key:string; en_name:string }
 interface PlantedBerry { _id:number; id:number; tsPlant:number; tsLastWater:number }
 
 const berries = hubData.berries as BerryData[]
@@ -17,7 +17,8 @@ const degrees = [
 ] as const
 
 const itemName = (id:number) => items.find((item) => item.id === id)?.en_name ?? `Berry #${id}`
-const icon = (id:number) => `/hub-icons/${id}.png`
+// PokeMMO Hub serves these exact icons from /item/<id>.png.
+const icon = (id:number) => `/item/${id}.png`
 const formatDiff = (ms:number) => {
   const minutes = Math.max(0, Math.round(Math.abs(ms) / 60000))
   const days = Math.floor(minutes / 1440)
@@ -31,10 +32,11 @@ const formatDiff = (ms:number) => {
 }
 
 function dropletState(berry:BerryData, plant:number, water:number, now:number, index:number) {
-  const first = plant === water
+  // The Hub starts a newly planted berry with exactly two filled droplets.
+  if (plant === water) return index < 2 ? "filled" : "empty"
   const elapsed = (now - water) / 3600000
   const long = berry.grow_time === 42 || berry.grow_time === 44 || berry.grow_time === 67
-  const hour = first ? elapsed - 6 : (long ? elapsed : elapsed + 1)
+  const hour = long ? elapsed : elapsed + 1
   const floor = long ? -15 : -10
   const limit = long ? -15 + index * 3 : -10 + index * 2
   if (hour <= floor) return "red"
@@ -54,8 +56,8 @@ export default function BerriesHelper() {
   useEffect(() => { const id=window.setInterval(()=>setNow(Date.now()),60000); return ()=>window.clearInterval(id) },[])
 
   const berryById = (id:number) => berries.find((berry)=>berry.item_id===id)
-  const sorted = useMemo(() => [...berries].sort((a,b)=>itemName(a.item_id).localeCompare(itemName(b.item_id))).sort((a,b)=>Number(favorites.includes(b.item_id))-Number(favorites.includes(a.item_id))),[favorites])
-  const addBerry=(id:number)=>setPlants((p)=>[...p,{_id:Date.now()+Math.random(),id,tsPlant:Date.now(),tsLastWater:Date.now()}])
+  const sorted = useMemo(() => [...berries].sort((a,b)=>itemName(b.item_id).toLowerCase().localeCompare(itemName(a.item_id).toLowerCase())).sort((a,b)=>Number(favorites.includes(b.item_id))-Number(favorites.includes(a.item_id))),[favorites])
+  const addBerry=(id:number)=>{ const t=Date.now(); setPlants((p)=>[...p,{_id:t+Math.random(),id,tsPlant:t,tsLastWater:t}]) }
   const removeBerry=(id:number)=>setPlants((p)=>p.filter((x)=>x._id!==id))
   const waterBerry=(id:number)=>{setPlants((p)=>p.map((x)=>x._id===id?{...x,tsLastWater:Date.now()}:x));setJustWatered((p)=>({...p,[id]:true}));window.setTimeout(()=>setJustWatered((p)=>({...p,[id]:false})),700)}
   const toggleFavorite=(id:number)=>setFavorites((p)=>p.includes(id)?p.filter((x)=>x!==id):[...p,id])
@@ -75,7 +77,7 @@ export default function BerriesHelper() {
     </div>
 
     <div id="berry-list" className="mt-4 flex flex-wrap items-stretch gap-4">
-      {sorted.map((berry)=>{const favorite=favorites.includes(berry.item_id);return <article key={berry.item_id} className="flex min-w-[280px] flex-[1_1_300px] flex-col rounded-md border border-white/10 bg-[#20252b] p-4"><div className="mb-3 flex items-center gap-2"><img src={icon(berry.item_id)} alt="" className="h-10 w-10 object-contain"/><h2 className="text-base font-semibold text-white">{itemName(berry.item_id)}</h2><button type="button" onClick={()=>toggleFavorite(berry.item_id)} className="ml-auto rounded p-1 text-mist-500 hover:text-red-400" title="Favorite"><Heart size={23} fill={favorite?"currentColor":"none"} className={favorite?"text-red-400":""}/></button></div><div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-mist-300"><strong>Seeds required:</strong>{degrees.map((degree)=>{const amount=berry[degree.key];if(!amount)return null;const seed=seeds.find((s)=>s.type===degree.label.toLowerCase());return <span key={degree.key} className="inline-flex items-center gap-1"><img src={icon(seed?.id??0)} alt={degree.label} className="h-6 w-6"/>{amount}</span>})}</div><div className="space-y-1 text-sm text-mist-300"><div>Grow time: {berry.grow_time}h</div><div>Return: {berry.min_harvest} to {berry.max_harvest} berries.</div></div><button type="button" onClick={()=>addBerry(berry.item_id)} className="mt-4 self-start rounded-md bg-amber-400 px-3 py-1.5 text-sm font-semibold text-slate-950 hover:bg-amber-300">Plant</button></article>})}
+      {sorted.map((berry)=>{const favorite=favorites.includes(berry.item_id);return <article key={berry.item_id} className="flex min-w-[280px] flex-[1_1_300px] flex-col rounded-md border border-white/10 bg-[#20252b] p-4"><div className="mb-3 flex items-center gap-2"><img src={icon(berry.item_id)} alt="" className="h-10 w-10 object-contain"/><h2 className="text-base font-semibold text-white">{itemName(berry.item_id)}</h2><button type="button" onClick={()=>toggleFavorite(berry.item_id)} className="ml-auto rounded p-1 text-mist-500 hover:text-red-400" title="Favorite"><Heart size={23} fill={favorite?"currentColor":"none"} className={favorite?"text-red-400":""}/></button></div><div className="mb-3 flex flex-wrap items-center gap-3 text-xs text-mist-300"><strong>Seeds required:</strong>{degrees.map((degree)=>{const amount=berry[degree.key];if(!amount)return null;const type=degree.label.toLowerCase();const seed=seeds.find((s)=>s.key.startsWith(`plain-${type}-`) || s.key.startsWith(`very-${type}-`));return <span key={degree.key} className="inline-flex items-center gap-1"><img src={icon(seed?.id??0)} alt={degree.label} className="h-6 w-6"/>{amount}</span>})}</div><div className="space-y-1 text-sm text-mist-300"><div>Grow time: {berry.grow_time}h</div><div>Return: {berry.min_harvest} to {berry.max_harvest} berries.</div></div><button type="button" onClick={()=>addBerry(berry.item_id)} className="mt-4 self-start rounded-md bg-amber-400 px-3 py-1.5 text-sm font-semibold text-slate-950 hover:bg-amber-300">Plant</button></article>})}
     </div>
   </section>
 }
