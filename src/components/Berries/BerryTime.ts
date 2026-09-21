@@ -1,0 +1,3 @@
+export function diffTimestamp(startTimestamp:number,endTimestamp:number,isJustCalc=false){const diff=startTimestamp-endTimestamp;let minutes=Math.floor(diff/60000);const hours=Math.floor(minutes/60);minutes%=60;return {hour:hours,minutes,isJustCalc}}
+export const getMsFromHour=(hours:number)=>3600000*hours
+export function convertDiffToString({hour,minutes}:{hour:number;minutes:number}){const h=Math.abs(hour),m=Math.abs(minutes);if(hour&&minutes)return hour===-1?`${m}m ago`:hour<0||minutes<0?`${Math.max(0,h-1)}h ${m}m ago`:`in ${h}h ${m}m`;if(hour)return hour<0?`${h} hour ago`:`in ${h} hour`;if(minutes)return minutes<0?`${m} minutes ago`:`in ${m} minutes`;return "Right now"}
