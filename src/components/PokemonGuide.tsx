@@ -21,6 +21,7 @@ import StrategyGuide from "./StrategyGuide"
 import BreedingCalculator from "./BreedingCalculator"
 import EggMovesCalculator from "./EggMovesCalculator"
 import BerriesHelper from "./BerriesHelper"
+import E4Lab from "./E4Lab"
 import sixPillars from "../data/strategies/gym-rerun/6pillars_basic.json"
 import sevenHells from "../data/strategies/gym-rerun/lucky_girl.json"
 import jinxedBoon from "../data/strategies/red-battle/red.json"
@@ -47,7 +48,7 @@ export default function PokemonGuide() {
   const [activeStrategy, setActiveStrategy] = useState<StrategyId>("dingxianyou")
   const [activeGymRerunStrategy, setActiveGymRerunStrategy] = useState<GymRerunStrategyId>("six-pillars")
   const [activeRedBattleStrategy, setActiveRedBattleStrategy] = useState<RedBattleStrategyId>("jinxedboon")
-  const [activeSection, setActiveSection] = useState<"e4" | "gym" | "red" | "breeding" | "eggMoves" | "berries">("e4")
+  const [activeSection, setActiveSection] = useState<"e4" | "gym" | "red" | "breeding" | "eggMoves" | "berries" | "e4Lab">("e4")
 
   const detailsRef = useRef<HTMLDivElement>(null)
   const regionSectionRef = useRef<HTMLDivElement>(null)
@@ -264,6 +265,12 @@ export default function PokemonGuide() {
           setExpandedLeader(null)
           setSelectedPokemon(null)
         }}
+        onE4LabClick={() => {
+          setActiveSection("e4Lab")
+          setExpandedRegion(null)
+          setExpandedLeader(null)
+          setSelectedPokemon(null)
+        }}
       />
 
       {activeSection === "e4" && isE4 ? (
@@ -440,9 +447,13 @@ export default function PokemonGuide() {
         <main id="herramientas" className="pt-8">
           <EggMovesCalculator />
         </main>
-      ) : (
+      ) : activeSection === "berries" ? (
         <main id="herramientas" className="pt-8">
           <BerriesHelper />
+        </main>
+      ) : (
+        <main id="e4-lab" className="pt-8">
+          <E4Lab />
         </main>
       )}
 
