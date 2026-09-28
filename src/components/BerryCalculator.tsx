@@ -199,7 +199,7 @@ function calculatePlan(input: PlanInput) {
   const breakEvenPrice = targetBerries > 0 ? Math.max(0, (toolCost - sourceSeedRevenueNet) / (targetBerries * (1 - feeRate))) : 0
   return {
     targetPlants, sourcePlants: seedPlan.reduce((sum, row) => sum + row.sourcePlants, 0), targetBerries, requiredSeeds, seedPlan, sourceTools, totalTools, sourceSeedRevenue: grossSeedRevenue, sourceSeedRevenueNet,
-    targetRevenue, targetRevenueNet, toolCost, reservePurchaseCost, initialSourceSeedPurchase, effectiveCost, profit, profitPerPlot, profitPerHour, totalCycleHours,
+    targetBerriesMin, targetBerriesMax, targetRevenue, targetRevenueNet, toolCost, reservePurchaseCost, initialSourceSeedPurchase, effectiveCost, profit, profitPerPlot, profitPerHour, totalCycleHours,
     breakEvenPrice,
   }
 }
@@ -358,7 +358,7 @@ export default function BerryCalculator() {
           <div className="rounded-2xl border border-white/10 bg-[#161a24] p-5">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"><div><h2 className="text-lg font-semibold text-white">Receta de {targetName}</h2><p className="text-xs text-mist-500">La combinación se obtiene a partir de los niveles de sabor de la baya seleccionada.</p></div><div className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs text-emerald-300">{target.grow_time} h · {target.min_harvest}–{target.max_harvest} bayas</div></div>
             <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {recipe.map((seed) => <SeedRecipeCard key={`${seed.flavor}-${seed.variant}`} seed={seed} targetName={targetName} total={seed.amount * calculations.targetBerries} />)}
+              {recipe.map((seed) => <SeedRecipeCard key={`${seed.flavor}-${seed.variant}`} seed={seed} targetName={targetName} total={seed.amount * calculations.targetPlants} />)}
             </div>
           </div>
 
