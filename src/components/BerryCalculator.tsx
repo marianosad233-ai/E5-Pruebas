@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react"
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { Calculator, CircleDollarSign, Info, Leaf, Package, RefreshCcw, Sprout, TrendingUp } from "lucide-react"
 import hubData from "../data/berriesHub.json"
 import type { BerryData, ItemData } from "./Berries/berries.types"
@@ -35,12 +35,12 @@ const flavorKeys: Array<[Flavor, keyof BerryData]> = [
 const spanishBerryNames: Record<string, string> = {
   "Leppa Berry": "Zanama",
   "Sitrus Berry": "Zidra",
-  "Cheri Berry": "Cereza",
+  "Cheri Berry": "Zreza",
   "Pecha Berry": "Meloc",
   "Rawst Berry": "Safre",
   "Chesto Berry": "Atania",
   "Aspear Berry": "Perasi",
-  "Oran Berry": "Orán",
+  "Oran Berry": "Aranja",
   "Lum Berry": "Ziuela",
   "Persim Berry": "Caquic",
 }
@@ -81,9 +81,133 @@ function formatNumber(value: number, digits = 0) {
   return value.toLocaleString("es-PE", { maximumFractionDigits: digits })
 }
 
+type SeedPriceMap = Record<Flavor, { plain: number; very: number }>
+type SeedStock = Record<string, number>
+
+type PlanInput = {
+  target: BerryData
+  targetPlants: number
+  totalPlotsMode?: boolean
+  totalPlots?: number
+  harvestToolPrice: number
+  targetPrice: number
+  seedPrices: SeedPriceMap
+  plainChance: number
+  reserveCycles: number
+  seedStock: SeedStock
+  gtlFee: number
+}
+
+function calculatePlan(input: PlanInput) {
+  const { target, harvestToolPrice, targetPrice, seedPrices, plainChance, reserveCycles, seedStock, gtlFee } = input
+  const recipe = buildRecipe(target)
+  const plainRate = Math.max(0.01, Math.min(0.99, plainChance / 100))
+  const veryRate = 1 - plainRate
+  let targetPlants = input.targetPlants
+  if (input.totalPlotsMode && input.totalPlots) {
+    const byFlavorForRatio = new Map<Flavor, { plain: number; very: number }>()
+    for (const seed of recipe) {
+      const current = byFlavorForRatio.get(seed.flavor) ?? { plain: 0, very: 0 }
+      current[seed.variant] += seed.amount
+      byFlavorForRatio.set(seed.flavor, current)
+    }
+    let sourceRatio = 0
+    for (const [flavor, amounts] of byFlavorForRatio) {
+      const source = sourceByFlavor[flavor]
+      const sourceBerry = berries.find((berry) => berry.item_id === source.itemId) ?? berries[0]
+      const sourceYield = (sourceBerry.min_harvest + sourceBerry.max_harvest) / 2
+      const sourcePlainCost = flavor === "spicy" ? 3 : 1
+      const sourceVeryCost = flavor === "spicy" ? 0 : 1
+      const netPlain = Math.max(0.0001, sourceYield * plainRate - sourcePlainCost)
+      const netVery = Math.max(0.0001, sourceYield * veryRate - sourceVeryCost)
+      sourceRatio += Math.max(amounts.plain / netPlain, amounts.very / netVery)
+    }
+    targetPlants = Math.max(1, Math.floor(input.totalPlots / (1 + sourceRatio)))
+  }
+  const averageTargetYield = (target.min_harvest + target.max_harvest) / 2
+  const targetBerries = targetPlants * averageTargetYield
+  const requiredSeeds = recipe.map((seed) => ({ ...seed, total: seed.amount * targetPlants }))
+  const byFlavor = new Map<Flavor, { plain: number; very: number }>()
+  for (const seed of requiredSeeds) {
+    const current = byFlavor.get(seed.flavor) ?? { plain: 0, very: 0 }
+    current[seed.variant] += seed.total
+    byFlavor.set(seed.flavor, current)
+  }
+
+  const seedPlan = Array.from(byFlavor.entries()).map(([flavor, amounts]) => {
+    const source = sourceByFlavor[flavor]
+    const sourceBerry = berries.find((berry) => berry.item_id === source.itemId) ?? berries[0]
+    const sourceYield = (sourceBerry.min_harvest + sourceBerry.max_harvest) / 2
+    const grossPlain = sourceYield * plainRate
+    const grossVery = sourceYield * veryRate
+    const sourcePlainCost = flavor === "spicy" ? 3 : 1
+    const sourceVeryCost = flavor === "spicy" ? 0 : 1
+    const netPlain = grossPlain - sourcePlainCost
+    const netVery = grossVery - sourceVeryCost
+    const currentPlain = seedStock[`${flavor}-plain`] ?? 0
+    const currentVery = seedStock[`${flavor}-very`] ?? 0
+
+    // Recurring cycle: produce only what the target cycle consumes. The source
+    // crop's own planting cost is already deducted from its net seed yield.
+    const toProducePlain = Math.max(0, amounts.plain - currentPlain)
+    const toProduceVery = Math.max(0, amounts.very - currentVery)
+    const sourcePlantsForPlain = toProducePlain > 0 ? Math.ceil(toProducePlain / Math.max(0.0001, netPlain)) : 0
+    const sourcePlantsForVery = toProduceVery > 0 ? Math.ceil(toProduceVery / Math.max(0.0001, netVery)) : 0
+    const sourcePlants = Math.max(sourcePlantsForPlain, sourcePlantsForVery)
+    const sourceBerries = sourcePlants * sourceYield
+    const generatedPlain = sourceBerries * plainRate
+    const generatedVery = sourceBerries * veryRate
+    const netGeneratedPlain = Math.max(0, generatedPlain - sourcePlants * sourcePlainCost)
+    const netGeneratedVery = Math.max(0, generatedVery - sourcePlants * sourceVeryCost)
+    const surplusPlain = Math.max(0, netGeneratedPlain - toProducePlain)
+    const surplusVery = Math.max(0, netGeneratedVery - toProduceVery)
+
+    // One-time reserve target. It is not multiplied into recurring cycle costs.
+    const reserveNeedPlain = amounts.plain * reserveCycles
+    const reserveNeedVery = amounts.very * reserveCycles
+    const reserveMissingPlain = Math.max(0, reserveNeedPlain - currentPlain)
+    const reserveMissingVery = Math.max(0, reserveNeedVery - currentVery)
+    const reservePurchaseCost = reserveMissingPlain * seedPrices[flavor].plain + reserveMissingVery * seedPrices[flavor].very
+    const initialSourceSeedPurchase = Math.max(0, sourcePlants * sourcePlainCost - currentPlain) * seedPrices[flavor].plain + Math.max(0, sourcePlants * sourceVeryCost - currentVery) * seedPrices[flavor].very
+
+    return {
+      flavor, source, amounts, sourcePlants, sourceBerries, tools: Math.ceil(sourceBerries),
+      expectedPlain: netGeneratedPlain, expectedVery: netGeneratedVery,
+      requiredPlain: amounts.plain, requiredVery: amounts.very,
+      toProducePlain, toProduceVery, reserveMissingPlain, reserveMissingVery,
+      surplusPlain, surplusVery, reservePurchaseCost, initialSourceSeedPurchase, sourceGrowTime: sourceBerry.grow_time,
+    }
+  })
+
+  const sourceTools = seedPlan.reduce((sum, row) => sum + row.tools, 0)
+  const totalTools = sourceTools
+  const toolCost = totalTools * harvestToolPrice
+  const grossSeedRevenue = seedPlan.reduce((sum, row) => sum + row.surplusPlain * seedPrices[row.flavor].plain + row.surplusVery * seedPrices[row.flavor].very, 0)
+  const feeRate = Math.max(0, Math.min(1, gtlFee / 100))
+  const sourceSeedRevenueNet = grossSeedRevenue * (1 - feeRate)
+  const targetBerriesMin = targetPlants * target.min_harvest
+  const targetBerriesMax = targetPlants * target.max_harvest
+  const targetRevenue = targetBerries * targetPrice
+  const targetRevenueNet = targetRevenue * (1 - feeRate)
+  const reservePurchaseCost = seedPlan.reduce((sum, row) => sum + row.reservePurchaseCost, 0)
+  const initialSourceSeedPurchase = seedPlan.reduce((sum, row) => sum + row.initialSourceSeedPurchase, 0)
+  const effectiveCost = Math.max(0, toolCost - sourceSeedRevenueNet)
+  const profit = targetRevenueNet + sourceSeedRevenueNet - toolCost
+  const profitPerPlot = targetPlants > 0 ? profit / targetPlants : 0
+  const totalCycleHours = target.grow_time + (seedPlan.length ? Math.max(...seedPlan.map((row) => row.sourceGrowTime)) : 0)
+  const profitPerHour = totalCycleHours > 0 ? profit / totalCycleHours : 0
+  const breakEvenPrice = targetBerries > 0 ? Math.max(0, (toolCost - sourceSeedRevenueNet) / (targetBerries * (1 - feeRate))) : 0
+  return {
+    targetPlants, sourcePlants: seedPlan.reduce((sum, row) => sum + row.sourcePlants, 0), targetBerries, requiredSeeds, seedPlan, sourceTools, totalTools, sourceSeedRevenue: grossSeedRevenue, sourceSeedRevenueNet,
+    targetRevenue, targetRevenueNet, toolCost, reservePurchaseCost, initialSourceSeedPurchase, effectiveCost, profit, profitPerPlot, profitPerHour, totalCycleHours,
+    breakEvenPrice,
+  }
+}
+
 export default function BerryCalculator() {
   const [targetId, setTargetId] = useState(612)
   const [plots, setPlots] = useState(156)
+  const [plotMode, setPlotMode] = useState<"target" | "total">("target")
   const [harvestToolPrice, setHarvestToolPrice] = useState(350)
   const [targetPrice, setTargetPrice] = useState(800)
   const [seedPrices, setSeedPrices] = useState<Record<Flavor, { plain: number; very: number }>>({
@@ -96,92 +220,51 @@ export default function BerryCalculator() {
   const [plainChance, setPlainChance] = useState(70)
   const [safetyCycles, setSafetyCycles] = useState(1)
   const [seedStock, setSeedStock] = useState<Record<string, number>>({})
+  const settingsLoaded = useRef(false)
+  const [gtlFee, setGtlFee] = useState(5)
+
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("berry-helper-calculator") ?? "null")
+      if (saved?.harvestToolPrice != null) setHarvestToolPrice(Number(saved.harvestToolPrice))
+      if (saved?.targetPrice != null) setTargetPrice(Number(saved.targetPrice))
+      if (saved?.plainChance != null) setPlainChance(Number(saved.plainChance))
+      if (saved?.safetyCycles != null) setSafetyCycles(Number(saved.safetyCycles))
+      if (saved?.seedPrices) setSeedPrices(saved.seedPrices)
+      if (saved?.seedStock) setSeedStock(saved.seedStock)
+      if (saved?.gtlFee != null) setGtlFee(Number(saved.gtlFee))
+    } catch { /* ignore malformed local settings */ }
+    settingsLoaded.current = true
+  }, [])
+
+  useEffect(() => {
+    if (!settingsLoaded.current) return
+    localStorage.setItem("berry-helper-calculator", JSON.stringify({ harvestToolPrice, targetPrice, plainChance, safetyCycles, seedPrices, seedStock, gtlFee }))
+  }, [harvestToolPrice, targetPrice, plainChance, safetyCycles, seedPrices, seedStock, gtlFee])
+
+  const resetSettings = () => {
+    localStorage.removeItem("berry-helper-calculator")
+    window.location.reload()
+  }
 
   const target = berries.find((berry) => berry.item_id === targetId) ?? berries[0]
   const targetName = spanishBerryNames[itemName(target.item_id)] ?? itemName(target.item_id)
   const recipe = useMemo(() => buildRecipe(target), [target])
   const averageYield = (target.min_harvest + target.max_harvest) / 2
 
-  const calculations = useMemo(() => {
-    const targetBerries = plots * averageYield
-    const requiredSeeds = recipe.map((seed) => ({ ...seed, total: seed.amount * targetBerries }))
-
-    const byFlavor = new Map<Flavor, { plain: number; very: number }>()
-    for (const seed of requiredSeeds) {
-      const current = byFlavor.get(seed.flavor) ?? { plain: 0, very: 0 }
-      current[seed.variant] += seed.total
-      byFlavor.set(seed.flavor, current)
-    }
-
-    const seedPlan = Array.from(byFlavor.entries()).map(([flavor, amounts]) => {
-      const source = sourceByFlavor[flavor]
-      const plainRate = plainChance / 100
-      const veryRate = 1 - plainRate
-      const requiredPlain = amounts.plain * safetyCycles
-      const requiredVery = amounts.very * safetyCycles
-      const remainingPlain = Math.max(0, requiredPlain - (seedStock[`${flavor}-plain`] ?? 0))
-      const remainingVery = Math.max(0, requiredVery - (seedStock[`${flavor}-very`] ?? 0))
-      const sourceForPlain = remainingPlain > 0 ? remainingPlain / plainRate : 0
-      const sourceForVery = remainingVery > 0 ? remainingVery / veryRate : 0
-      const sourceBerries = Math.ceil(Math.max(sourceForPlain, sourceForVery))
-      const sourcePlants = Math.ceil(sourceBerries / 4.5)
-      const tools = sourceBerries
-      const expectedPlain = sourceBerries * plainRate
-      const expectedVery = sourceBerries * veryRate
-      const requiredStock = (amounts.plain + amounts.very) * safetyCycles
-      const currentPlain = seedStock[`${flavor}-plain`] ?? 0
-      const currentVery = seedStock[`${flavor}-very`] ?? 0
-      const stockCoverage = Math.min(
-        amounts.plain > 0 ? currentPlain / amounts.plain : Number.POSITIVE_INFINITY,
-        amounts.very > 0 ? currentVery / amounts.very : Number.POSITIVE_INFINITY,
-      )
-      return {
-        flavor,
-        source,
-        amounts,
-        remainingPlain,
-        remainingVery,
-        sourceBerries,
-        sourcePlants,
-        tools,
-        expectedPlain,
-        expectedVery,
-        requiredPlain,
-        requiredVery,
-        requiredStock,
-        currentPlain,
-        currentVery,
-        stockCoverage,
-      }
-    })
-
-    const sourceTools = seedPlan.reduce((sum, row) => sum + row.tools, 0)
-    const totalTools = sourceTools
-    const sourceSeedRevenue = seedPlan.reduce((sum, row) => {
-      const surplusPlain = Math.max(0, row.expectedPlain - row.remainingPlain)
-      const surplusVery = Math.max(0, row.expectedVery - row.remainingVery)
-      return sum + surplusPlain * seedPrices[row.flavor].plain + surplusVery * seedPrices[row.flavor].very
-    }, 0)
-    const targetRevenue = targetBerries * targetPrice
-    const toolCost = totalTools * harvestToolPrice
-    const effectiveCost = Math.max(0, toolCost - sourceSeedRevenue)
-    const profit = targetRevenue + sourceSeedRevenue - toolCost
-    const costPerTarget = targetBerries > 0 ? effectiveCost / targetBerries : 0
-
-    return {
-      targetBerries,
-      requiredSeeds,
-      seedPlan,
-      sourceTools,
-      totalTools,
-      sourceSeedRevenue,
-      targetRevenue,
-      toolCost,
-      effectiveCost,
-      profit,
-      costPerTarget,
-    }
-  }, [averageYield, harvestToolPrice, plainChance, plots, recipe, safetyCycles, seedPrices, seedStock, targetPrice])
+  const calculations = useMemo(() => calculatePlan({
+    target,
+    targetPlants: plots,
+    totalPlotsMode: plotMode === "total",
+    totalPlots: plots,
+    harvestToolPrice,
+    targetPrice,
+    seedPrices,
+    plainChance,
+    reserveCycles: safetyCycles,
+    seedStock,
+    gtlFee,
+  }), [target, plots, harvestToolPrice, targetPrice, seedPrices, plainChance, safetyCycles, seedStock])
 
   const updateStock = (key: string, value: string) => {
     const parsed = Math.max(0, Number(value) || 0)
@@ -217,8 +300,12 @@ export default function BerryCalculator() {
                 </select>
               </label>
               <div>
-                <FieldLabel label="Parcelas para la baya objetivo" tip="Indica cuántas parcelas vas a dedicar a la baya que quieres producir. No incluye las parcelas auxiliares que la calculadora estima para obtener sus semillas." />
-                <input type="number" min={1} max={5000} value={plots} onChange={(event) => setPlots(Math.max(1, Number(event.target.value) || 1))} className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500" />
+                <FieldLabel label={plotMode === "target" ? "Parcelas para la baya objetivo" : "Parcelas totales disponibles"} tip={plotMode === "target" ? "Indica cuántas parcelas vas a dedicar a la baya que quieres producir. Las parcelas fuente para generar semillas se calculan aparte." : "Indica el total real de parcelas que tienes. La calculadora estima cuántas deben ir a la baya objetivo y cuántas a los cultivos fuente para mantener el ciclo."} />
+                <div className="mt-1.5 grid grid-cols-2 gap-2">
+                  <select value={plotMode} onChange={(event) => setPlotMode(event.target.value as "target" | "total")} className="rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-xs text-white outline-none focus:border-violet-500"><option value="target">Solo objetivo</option><option value="total">Total de la granja</option></select>
+                  <input type="number" min={1} max={5000} value={plots} onChange={(event) => setPlots(Math.max(1, Number(event.target.value) || 1))} className="rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500" />
+                </div>
+                {plotMode === "total" && <p className="mt-1.5 text-[10px] leading-4 text-mist-600">La cifra se reparte automáticamente entre objetivo y fuentes.</p>}
               </div>
               <div>
                 <FieldLabel label="Rendimiento de la baya" tip="La calculadora usa automáticamente el promedio entre la cosecha mínima y máxima registrada para esta baya. No necesitas introducirlo manualmente." />
@@ -248,19 +335,24 @@ export default function BerryCalculator() {
                 <div className="grid grid-cols-[1fr_76px_76px] gap-2 text-[10px] text-mist-600"><span></span><span className="text-right">Normal</span><span className="text-right">Muy</span></div>
               </div>
               <div className="border-t border-white/10 pt-3">
+                <label className="flex items-center justify-between gap-3 text-xs text-mist-400"><span className="flex items-center gap-1.5">Comisión GTL <InfoTip text="Coste aplicado a las ventas realizadas en el GTL. Se usa para descontar la comisión de tus ingresos por bayas y semillas. El valor habitual documentado por la comunidad es 5%." /></span><input type="number" min={0} max={100} value={gtlFee} onChange={(event) => setGtlFee(Math.min(100, Math.max(0, Number(event.target.value) || 0)))} className="w-20 rounded-lg border border-white/10 bg-[#20252f] px-2.5 py-2 text-right text-sm text-white outline-none focus:border-violet-500" /></label>
+              </div>
+              <div className="border-t border-white/10 pt-3">
                 <div className="flex items-center justify-between text-xs text-mist-400"><span className="flex items-center gap-1.5">Probabilidad de semilla Normal <InfoTip text="Porcentaje estimado de semillas normales al usar un Harvest Tool. El resto se considera semilla Muy. Déjalo en el valor recomendado si no tienes datos propios." /></span><span className="font-semibold text-white">{plainChance}%</span></div>
                 <input aria-label="Probabilidad de semilla Normal" type="range" min={50} max={90} value={plainChance} onChange={(event) => setPlainChance(Number(event.target.value))} className="mt-2 w-full accent-violet-500" />
               </div>
+              <button type="button" onClick={resetSettings} className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#20252f] px-3 py-2 text-xs font-semibold text-mist-300 transition hover:border-violet-500/40 hover:text-white"><RefreshCcw className="h-3.5 w-3.5" /> Restablecer configuración</button>
             </div>
           </div>
         </aside>
 
         <main className="space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <Metric icon={<Package />} label="Producción" value={formatNumber(calculations.targetBerries, 1)} suffix={targetName} />
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+            <Metric icon={<Package />} label="Producción" value={formatNumber(calculations.targetBerries, 1)} suffix={`${targetName} · ${formatNumber(calculations.targetPlants)} parcelas`} />
             <Metric icon={<RefreshCcw />} label="Harvest Tools" value={formatNumber(calculations.totalTools)} suffix="por ciclo" />
             <Metric icon={<CircleDollarSign />} label="Costo bruto" value={formatMoney(calculations.toolCost)} suffix="herramientas" />
             <Metric icon={<TrendingUp />} label="Beneficio estimado" value={formatMoney(calculations.profit)} suffix="por ciclo" positive={calculations.profit >= 0} />
+            <Metric icon={<Sprout />} label="Beneficio / parcela" value={formatMoney(calculations.profitPerPlot)} suffix="por ciclo" positive={calculations.profit >= 0} />
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-[#161a24] p-5">
@@ -272,8 +364,9 @@ export default function BerryCalculator() {
 
           <div className="rounded-2xl border border-white/10 bg-[#161a24] p-5">
             <div className="flex items-center justify-between gap-3"><div><h2 className="text-lg font-semibold text-white">Producción de semillas</h2><p className="text-xs text-mist-500">Estimación para reponer las semillas necesarias sin comprar todo en el GTL.</p></div><Leaf className="h-5 w-5 text-emerald-300" /></div>
-            <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[760px] text-sm"><thead><tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-mist-500"><th className="px-3 py-2">Sabor</th><th className="px-3 py-2">Fuente</th><th className="px-3 py-2">Semillas requeridas</th><th className="px-3 py-2">Bayas fuente</th><th className="px-3 py-2">Parcelas fuente</th><th className="px-3 py-2">Valor excedente</th></tr></thead><tbody>{calculations.seedPlan.map((row) => { const surplusPlain = Math.max(0, row.expectedPlain - row.remainingPlain); const surplusVery = Math.max(0, row.expectedVery - row.remainingVery); const surplusValue = surplusPlain * seedPrices[row.flavor].plain + surplusVery * seedPrices[row.flavor].very; return <tr key={row.flavor} className="border-b border-white/5"><td className="px-3 py-3 font-semibold text-white">{flavorLabels[row.flavor]}</td><td className="px-3 py-3 text-mist-300">{row.source.name}</td><td className="px-3 py-3 text-mist-300">{formatNumber(row.remainingPlain)} {flavorLabels[row.flavor]} + {formatNumber(row.remainingVery)} Muy {flavorLabels[row.flavor]}</td><td className="px-3 py-3 text-mist-300">{formatNumber(row.sourceBerries)}</td><td className="px-3 py-3 text-mist-300">{formatNumber(row.sourcePlants)}</td><td className="px-3 py-3 font-semibold text-emerald-300">{formatMoney(surplusValue)}</td></tr> })}</tbody></table></div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-3"><SummaryCard label="Herramientas para semillas" value={formatNumber(calculations.sourceTools)} /><SummaryCard label="Venta estimada de excedentes" value={formatMoney(calculations.sourceSeedRevenue)} positive /><SummaryCard label="Costo efectivo por baya" value={formatMoney(calculations.costPerTarget)} /></div>
+            <div className="mt-4 overflow-x-auto"><table className="w-full min-w-[760px] text-sm"><thead><tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-mist-500"><th className="px-3 py-2">Sabor</th><th className="px-3 py-2">Fuente</th><th className="px-3 py-2">Por producir</th><th className="px-3 py-2">Bayas fuente</th><th className="px-3 py-2">Parcelas fuente</th><th className="px-3 py-2">Valor excedente</th></tr></thead><tbody>{calculations.seedPlan.map((row) => { const surplusPlain = row.surplusPlain; const surplusVery = row.surplusVery; const surplusValue = surplusPlain * seedPrices[row.flavor].plain + surplusVery * seedPrices[row.flavor].very; return <tr key={row.flavor} className="border-b border-white/5"><td className="px-3 py-3 font-semibold text-white">{flavorLabels[row.flavor]}</td><td className="px-3 py-3 text-mist-300">{row.source.name}</td><td className="px-3 py-3 text-mist-300">{formatNumber(row.toProducePlain)} {flavorLabels[row.flavor]} + {formatNumber(row.toProduceVery)} Muy {flavorLabels[row.flavor]}</td><td className="px-3 py-3 text-mist-300">{formatNumber(row.sourceBerries)}</td><td className="px-3 py-3 text-mist-300">{formatNumber(row.sourcePlants)}</td><td className="px-3 py-3 font-semibold text-emerald-300">{formatMoney(surplusValue)}</td></tr> })}</tbody></table></div>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4"><SummaryCard label="Herramientas para semillas" value={formatNumber(calculations.sourceTools)} /><SummaryCard label="Venta neta de excedentes" value={formatMoney(calculations.sourceSeedRevenueNet)} positive /><SummaryCard label="Reserva inicial faltante" value={formatMoney(calculations.reservePurchaseCost)} /><SummaryCard label="Costo efectivo por baya" value={formatMoney(calculations.effectiveCost / Math.max(1, calculations.targetBerries))} /></div>
+            <div className="mt-3 rounded-xl border border-white/10 bg-[#20252f] px-3 py-2 text-xs text-mist-400"><span className="font-semibold text-white">Rango de cosecha:</span> {formatNumber(calculations.targetBerriesMin)}–{formatNumber(calculations.targetBerriesMax)} {targetName} por ciclo. El beneficio mostrado usa el rendimiento medio; el RNG de semillas usa la probabilidad configurada.</div>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-[#161a24] p-5">
@@ -282,9 +375,17 @@ export default function BerryCalculator() {
           </div>
 
           <div className="grid gap-4 lg:grid-cols-3">
-            <ResultCard title="Ingreso por {targetName}" value={formatMoney(calculations.targetRevenue)} subtitle={`${formatNumber(calculations.targetBerries, 1)} × ${formatMoney(targetPrice)}`} />
-            <ResultCard title="Ingreso por semillas" value={formatMoney(calculations.sourceSeedRevenue)} subtitle="Solo excedentes después de cubrir el ciclo." />
-            <ResultCard title="Costo efectivo" value={formatMoney(calculations.effectiveCost)} subtitle={`${formatMoney(calculations.toolCost)} − semillas vendidas`} />
+            <ResultCard title={`Ingreso por ${targetName}`} value={formatMoney(calculations.targetRevenueNet)} subtitle={`${formatNumber(calculations.targetBerries, 1)} × ${formatMoney(targetPrice)}`} />
+            <ResultCard title="Ingreso por semillas" value={formatMoney(calculations.sourceSeedRevenueNet)} subtitle="Excedentes vendidos después de cubrir el ciclo y la reserva." />
+            <ResultCard title="Costo efectivo" value={formatMoney(calculations.effectiveCost)} subtitle={`${formatMoney(calculations.toolCost)} − excedentes netos`} />
+          </div>
+          {calculations.profit < 0 && <div className="rounded-2xl border border-red-400/20 bg-red-400/5 px-4 py-3 text-sm text-red-200"><strong>⚠ Rentabilidad negativa.</strong> Con los precios actuales, el valor neto de venta no cubre los Harvest Tools del ciclo. Revisa el precio de la baya, semillas o comisión GTL.</div>}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            <SummaryCard label="Tiempo del ciclo" value={`${formatNumber(calculations.totalCycleHours, 1)} h`} />
+            <SummaryCard label="Beneficio / hora" value={formatMoney(calculations.profitPerHour)} positive={calculations.profit >= 0} />
+            <SummaryCard label="Precio de equilibrio" value={formatMoney(calculations.breakEvenPrice)} />
+            <SummaryCard label="Resultado" value={calculations.profit >= 0 ? "Rentable" : "Pérdida"} positive={calculations.profit >= 0} />
+            <SummaryCard label="Semillas iniciales" value={formatMoney(calculations.initialSourceSeedPurchase + calculations.reservePurchaseCost)} />
           </div>
         </main>
       </div>
