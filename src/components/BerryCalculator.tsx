@@ -104,15 +104,16 @@ function calculatePlan(input: PlanInput) {
   const plainRate = Math.max(0.01, Math.min(0.99, plainChance / 100))
   const veryRate = 1 - plainRate
   let targetPlants = input.targetPlants
-  if (input.totalPlotsMode && input.totalPlots) {
-    const byFlavorForRatio = new Map<Flavor, { plain: number; very: number }>()
+  const sourcePlantsForTarget = (plants: number) => {
+    const requiredByFlavor = new Map<Flavor, { plain: number; very: number }>()
     for (const seed of recipe) {
-      const current = byFlavorForRatio.get(seed.flavor) ?? { plain: 0, very: 0 }
-      current[seed.variant] += seed.amount
-      byFlavorForRatio.set(seed.flavor, current)
+      const current = requiredByFlavor.get(seed.flavor) ?? { plain: 0, very: 0 }
+      current[seed.variant] += seed.amount * plants
+      requiredByFlavor.set(seed.flavor, current)
     }
-    let sourceRatio = 0
-    for (const [flavor, amounts] of byFlavorForRatio) {
+
+    let totalSourcePlants = 0
+    for (const [flavor, amounts] of requiredByFlavor) {
       const source = sourceByFlavor[flavor]
       const sourceBerry = berries.find((berry) => berry.item_id === source.itemId) ?? berries[0]
       const sourceYield = (sourceBerry.min_harvest + sourceBerry.max_harvest) / 2
@@ -120,9 +121,29 @@ function calculatePlan(input: PlanInput) {
       const sourceVeryCost = flavor === "spicy" ? 0 : 1
       const netPlain = Math.max(0.0001, sourceYield * plainRate - sourcePlainCost)
       const netVery = Math.max(0.0001, sourceYield * veryRate - sourceVeryCost)
-      sourceRatio += Math.max(amounts.plain / netPlain, amounts.very / netVery)
+      const currentPlain = seedStock[`${flavor}-plain`] ?? 0
+      const currentVery = seedStock[`${flavor}-very`] ?? 0
+      const toProducePlain = Math.max(0, amounts.plain - currentPlain)
+      const toProduceVery = Math.max(0, amounts.very - currentVery)
+      const plantsForPlain = toProducePlain > 0 ? Math.ceil(toProducePlain / netPlain) : 0
+      const plantsForVery = toProduceVery > 0 ? Math.ceil(toProduceVery / netVery) : 0
+      totalSourcePlants += Math.max(plantsForPlain, plantsForVery)
     }
-    targetPlants = Math.max(1, Math.floor(input.totalPlots / (1 + sourceRatio)))
+    return totalSourcePlants
+  }
+
+  if (input.totalPlotsMode && input.totalPlots) {
+    // Find the maximum integer number of target plants that fits together with
+    // the source plants required to sustain that target production.
+    let low = 0
+    let high = Math.max(0, Math.floor(input.totalPlots))
+    while (low < high) {
+      const mid = Math.ceil((low + high) / 2)
+      const usedPlots = mid + sourcePlantsForTarget(mid)
+      if (usedPlots <= input.totalPlots) low = mid
+      else high = mid - 1
+    }
+    targetPlants = Math.max(1, low)
   }
   const averageTargetYield = (target.min_harvest + target.max_harvest) / 2
   const targetBerries = targetPlants * averageTargetYield
@@ -207,7 +228,10 @@ function calculatePlan(input: PlanInput) {
 export default function BerryCalculator() {
   const [targetId, setTargetId] = useState(612)
   const [plots, setPlots] = useState(156)
-  const [plotMode, setPlotMode] = useState<"target" | "total">("target")
+  const [plotMode, setPlotMode] = useState<"target" | "total">("total")
+  const [accounts, setAccounts] = useState(2)
+  const [charactersPerAccount, setCharactersPerAccount] = useState(3)
+  const [plotsPerCharacter, setPlotsPerCharacter] = useState(156)
   const [harvestToolPrice, setHarvestToolPrice] = useState(350)
   const [targetPrice, setTargetPrice] = useState(800)
   const [seedPrices, setSeedPrices] = useState<Record<Flavor, { plain: number; very: number }>>({
@@ -233,13 +257,17 @@ export default function BerryCalculator() {
       if (saved?.seedPrices) setSeedPrices(saved.seedPrices)
       if (saved?.seedStock) setSeedStock(saved.seedStock)
       if (saved?.gtlFee != null) setGtlFee(Number(saved.gtlFee))
+      if (saved?.accounts != null) setAccounts(Number(saved.accounts))
+      if (saved?.charactersPerAccount != null) setCharactersPerAccount(Number(saved.charactersPerAccount))
+      if (saved?.plotsPerCharacter != null) setPlotsPerCharacter(Number(saved.plotsPerCharacter))
+      if (saved?.plotMode) setPlotMode(saved.plotMode === "target" ? "target" : "total")
     } catch { /* ignore malformed local settings */ }
     settingsLoaded.current = true
   }, [])
 
   useEffect(() => {
     if (!settingsLoaded.current) return
-    localStorage.setItem("berry-helper-calculator", JSON.stringify({ harvestToolPrice, targetPrice, plainChance, safetyCycles, seedPrices, seedStock, gtlFee }))
+    localStorage.setItem("berry-helper-calculator", JSON.stringify({ harvestToolPrice, targetPrice, plainChance, safetyCycles, seedPrices, seedStock, gtlFee, accounts, charactersPerAccount, plotsPerCharacter, plotMode }))
   }, [harvestToolPrice, targetPrice, plainChance, safetyCycles, seedPrices, seedStock, gtlFee])
 
   const resetSettings = () => {
@@ -247,6 +275,7 @@ export default function BerryCalculator() {
     window.location.reload()
   }
 
+  const farmPlots = Math.max(1, accounts) * Math.max(1, charactersPerAccount) * Math.max(1, plotsPerCharacter)
   const target = berries.find((berry) => berry.item_id === targetId) ?? berries[0]
   const targetName = spanishBerryNames[itemName(target.item_id)] ?? itemName(target.item_id)
   const recipe = useMemo(() => buildRecipe(target), [target])
@@ -256,7 +285,7 @@ export default function BerryCalculator() {
     target,
     targetPlants: plots,
     totalPlotsMode: plotMode === "total",
-    totalPlots: plots,
+    totalPlots: plotMode === "total" ? farmPlots : plots,
     harvestToolPrice,
     targetPrice,
     seedPrices,
@@ -264,7 +293,7 @@ export default function BerryCalculator() {
     reserveCycles: safetyCycles,
     seedStock,
     gtlFee,
-  }), [target, plots, harvestToolPrice, targetPrice, seedPrices, plainChance, safetyCycles, seedStock])
+  }), [target, plots, farmPlots, plotMode, harvestToolPrice, targetPrice, seedPrices, plainChance, safetyCycles, seedStock, gtlFee])
 
   const updateStock = (key: string, value: string) => {
     const parsed = Math.max(0, Number(value) || 0)
@@ -300,12 +329,24 @@ export default function BerryCalculator() {
                 </select>
               </label>
               <div>
-                <FieldLabel label={plotMode === "target" ? "Parcelas para la baya objetivo" : "Parcelas totales disponibles"} tip={plotMode === "target" ? "Indica cuántas parcelas vas a dedicar a la baya que quieres producir. Las parcelas fuente para generar semillas se calculan aparte." : "Indica el total real de parcelas que tienes. La calculadora estima cuántas deben ir a la baya objetivo y cuántas a los cultivos fuente para mantener el ciclo."} />
-                <div className="mt-1.5 grid grid-cols-2 gap-2">
-                  <select value={plotMode} onChange={(event) => setPlotMode(event.target.value as "target" | "total")} className="rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-xs text-white outline-none focus:border-violet-500"><option value="target">Solo objetivo</option><option value="total">Total de la granja</option></select>
-                  <input type="number" min={1} max={5000} value={plots} onChange={(event) => setPlots(Math.max(1, Number(event.target.value) || 1))} className="rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500" />
+                <FieldLabel label="Configuración de la granja" tip="Define cómo está repartida tu granja. El total de parcelas se calcula automáticamente como cuentas × personajes por cuenta × parcelas por personaje y se utiliza para distribuir las parcelas entre la baya objetivo y los cultivos fuente." />
+                <div className="mt-1.5 grid grid-cols-3 gap-2">
+                  <NumberField label="Cuentas" value={accounts} min={1} max={20} onChange={setAccounts} />
+                  <NumberField label="Personajes / cuenta" value={charactersPerAccount} min={1} max={20} onChange={setCharactersPerAccount} />
+                  <NumberField label="Parcelas / personaje" value={plotsPerCharacter} min={1} max={1000} onChange={setPlotsPerCharacter} />
                 </div>
-                {plotMode === "total" && <p className="mt-1.5 text-[10px] leading-4 text-mist-600">La cifra se reparte automáticamente entre objetivo y fuentes.</p>}
+                <div className="mt-2 rounded-xl border border-violet-500/20 bg-violet-500/5 px-3 py-2.5">
+                  <div className="flex items-center justify-between gap-3 text-xs"><span className="text-mist-400">Total de parcelas</span><span className="font-bold text-violet-200">{formatNumber(farmPlots)}</span></div>
+                  <p className="mt-1 text-[10px] leading-4 text-mist-600">{accounts} cuenta{accounts === 1 ? "" : "s"} × {charactersPerAccount} personaje{charactersPerAccount === 1 ? "" : "s"} × {plotsPerCharacter} parcelas</p>
+                </div>
+              </div>
+              <div>
+                <FieldLabel label="Modo de cálculo" tip="Total de la granja distribuye automáticamente todas tus parcelas entre la baya objetivo y las fuentes necesarias. Solo objetivo ignora la distribución de la granja y usa únicamente las parcelas indicadas debajo." />
+                <div className="mt-1.5 grid grid-cols-2 gap-2">
+                  <select value={plotMode} onChange={(event) => setPlotMode(event.target.value as "target" | "total")} className="rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-xs text-white outline-none focus:border-violet-500"><option value="total">Total de la granja</option><option value="target">Solo objetivo</option></select>
+                  <input type="number" min={1} max={5000} value={plots} onChange={(event) => setPlots(Math.max(1, Number(event.target.value) || 1))} disabled={plotMode === "total"} className="rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500 disabled:cursor-not-allowed disabled:opacity-50" />
+                </div>
+                {plotMode === "total" ? <p className="mt-1.5 text-[10px] leading-4 text-mist-600">Usando las {formatNumber(farmPlots)} parcelas de la configuración de la granja.</p> : <p className="mt-1.5 text-[10px] leading-4 text-mist-600">Indica manualmente las parcelas dedicadas a la baya objetivo.</p>}
               </div>
               <div>
                 <FieldLabel label="Rendimiento de la baya" tip="La calculadora usa automáticamente el promedio entre la cosecha mínima y máxima registrada para esta baya. No necesitas introducirlo manualmente." />
@@ -347,6 +388,38 @@ export default function BerryCalculator() {
         </aside>
 
         <main className="space-y-4">
+          <div className="rounded-2xl border border-white/10 bg-[#161a24] p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div><h2 className="text-lg font-semibold text-white">Producción estimada por ciclo</h2><p className="text-xs text-mist-500">La producción se calcula usando exactamente las parcelas asignadas a la baya objetivo en la distribución.</p></div>
+              <Package className="h-5 w-5 text-emerald-300" />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <SummaryCard label={`${targetName} producida`} value={`${formatNumber(calculations.targetBerries, 1)} bayas`} positive />
+              <SummaryCard label="Parcelas objetivo" value={formatNumber(calculations.targetPlants)} />
+              <SummaryCard label="Parcelas de fuentes" value={formatNumber(calculations.sourcePlants)} />
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#161a24] p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div><h2 className="text-lg font-semibold text-white">Distribución de parcelas</h2><p className="text-xs text-mist-500">Distribución calculada para que la producción de semillas acompañe al número de parcelas de {targetName}.</p></div>
+              <Sprout className="h-5 w-5 text-violet-300" />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <SummaryCard label={`${targetName} · objetivo`} value={`${formatNumber(calculations.targetPlants)} parcelas`} />
+              <SummaryCard label="Cultivos fuente" value={`${formatNumber(calculations.sourcePlants)} parcelas`} />
+              <SummaryCard label="Parcelas utilizadas" value={`${formatNumber(calculations.targetPlants + calculations.sourcePlants)} / ${formatNumber(farmPlots)}`} />
+              <SummaryCard label="Parcelas libres" value={formatNumber(Math.max(0, farmPlots - calculations.targetPlants - calculations.sourcePlants))} />
+            </div>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[680px] text-sm"><thead><tr className="border-b border-white/10 text-left text-xs uppercase tracking-wide text-mist-500"><th className="px-3 py-2">Uso</th><th className="px-3 py-2">Parcelas totales</th><th className="px-3 py-2">Por personaje</th><th className="px-3 py-2">Producción relacionada</th></tr></thead><tbody>
+                <tr className="border-b border-white/5"><td className="px-3 py-3 font-semibold text-white">{targetName}</td><td className="px-3 py-3 text-mist-300">{formatNumber(calculations.targetPlants)}</td><td className="px-3 py-3 text-mist-300">≈ {formatNumber(calculations.targetPlants / Math.max(1, accounts * charactersPerAccount), 1)}</td><td className="px-3 py-3 text-mist-300">{formatNumber(calculations.targetBerries, 1)} {targetName}</td></tr>
+                <tr className="border-b border-white/5"><td className="px-3 py-3 font-semibold text-white">Fuentes de semillas</td><td className="px-3 py-3 text-mist-300">{formatNumber(calculations.sourcePlants)}</td><td className="px-3 py-3 text-mist-300">≈ {formatNumber(calculations.sourcePlants / Math.max(1, accounts * charactersPerAccount), 1)}</td><td className="px-3 py-3 text-mist-300">{formatNumber(calculations.sourceTools)} Harvest Tools</td></tr>
+              </tbody></table>
+            </div>
+            <div className="mt-3 rounded-xl border border-white/10 bg-[#20252f] px-3 py-2 text-xs text-mist-400"><span className="font-semibold text-white">Base de cálculo:</span> {accounts} cuenta{accounts === 1 ? "" : "s"} × {charactersPerAccount} personaje{charactersPerAccount === 1 ? "" : "s"} × {plotsPerCharacter} parcelas = {formatNumber(farmPlots)} parcelas totales.</div>
+          </div>
+
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
             <Metric icon={<Package />} label="Producción" value={formatNumber(calculations.targetBerries, 1)} suffix={`${targetName} · ${formatNumber(calculations.targetPlants)} parcelas`} />
             <Metric icon={<RefreshCcw />} label="Harvest Tools" value={formatNumber(calculations.totalTools)} suffix="por ciclo" />
@@ -391,6 +464,10 @@ export default function BerryCalculator() {
       </div>
     </section>
   )
+}
+
+function NumberField({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) {
+  return <label className="block text-[10px] text-mist-500"><span className="mb-1 block truncate">{label}</span><input type="number" min={min} max={max} value={value} onChange={(event) => onChange(Math.min(max, Math.max(min, Number(event.target.value) || min)))} className="w-full rounded-xl border border-white/10 bg-[#20252f] px-2.5 py-2.5 text-center text-sm text-white outline-none focus:border-violet-500" /></label>
 }
 
 function FieldLabel({ label, tip, compact = false }: { label: string; tip: string; compact?: boolean }) {
