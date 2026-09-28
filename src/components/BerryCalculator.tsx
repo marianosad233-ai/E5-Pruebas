@@ -84,7 +84,6 @@ function formatNumber(value: number, digits = 0) {
 export default function BerryCalculator() {
   const [targetId, setTargetId] = useState(612)
   const [plots, setPlots] = useState(156)
-  const [yieldOverride, setYieldOverride] = useState(0)
   const [harvestToolPrice, setHarvestToolPrice] = useState(350)
   const [targetPrice, setTargetPrice] = useState(800)
   const [seedPrices, setSeedPrices] = useState<Record<Flavor, { plain: number; very: number }>>({
@@ -101,7 +100,7 @@ export default function BerryCalculator() {
   const target = berries.find((berry) => berry.item_id === targetId) ?? berries[0]
   const targetName = spanishBerryNames[itemName(target.item_id)] ?? itemName(target.item_id)
   const recipe = useMemo(() => buildRecipe(target), [target])
-  const averageYield = yieldOverride > 0 ? yieldOverride : (target.min_harvest + target.max_harvest) / 2
+  const averageYield = (target.min_harvest + target.max_harvest) / 2
 
   const calculations = useMemo(() => {
     const targetBerries = plots * averageYield
@@ -217,35 +216,41 @@ export default function BerryCalculator() {
                   {berries.filter((berry) => buildRecipe(berry).length > 0).map((berry) => <option key={berry.item_id} value={berry.item_id}>{spanishBerryNames[itemName(berry.item_id)] ?? itemName(berry.item_id)}</option>)}
                 </select>
               </label>
-              <label className="block text-xs font-medium text-mist-400">Parcelas por ciclo
+              <div>
+                <FieldLabel label="Parcelas para la baya objetivo" tip="Indica cuántas parcelas vas a dedicar a la baya que quieres producir. No incluye las parcelas auxiliares que la calculadora estima para obtener sus semillas." />
                 <input type="number" min={1} max={5000} value={plots} onChange={(event) => setPlots(Math.max(1, Number(event.target.value) || 1))} className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500" />
-              </label>
-              <label className="block text-xs font-medium text-mist-400">Rendimiento medio por planta
-                <input type="number" min={0} step={0.1} placeholder={`${((target.min_harvest + target.max_harvest) / 2).toFixed(1)}`} value={yieldOverride || ""} onChange={(event) => setYieldOverride(Math.max(0, Number(event.target.value) || 0))} className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500" />
-                <span className="mt-1 block text-[11px] text-mist-500">Por defecto usa {target.min_harvest}–{target.max_harvest} bayas.</span>
-              </label>
-              <label className="block text-xs font-medium text-mist-400">Ciclos de seguridad
+              </div>
+              <div>
+                <FieldLabel label="Rendimiento de la baya" tip="La calculadora usa automáticamente el promedio entre la cosecha mínima y máxima registrada para esta baya. No necesitas introducirlo manualmente." />
+                <div className="mt-1.5 flex items-center justify-between rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5">
+                  <span className="text-sm font-semibold text-white">{target.min_harvest}–{target.max_harvest} bayas</span>
+                  <span className="text-xs text-mist-500">≈ {averageYield.toFixed(1)} por planta</span>
+                </div>
+              </div>
+              <div>
+                <FieldLabel label="Reserva de semillas" tip="Cantidad de ciclos que quieres mantener guardados antes de considerar una semilla como excedente vendible. Por ejemplo, 2 ciclos significa que la calculadora protege semillas suficientes para dos ciclos de producción." />
                 <select value={safetyCycles} onChange={(event) => setSafetyCycles(Number(event.target.value))} className="mt-1.5 w-full rounded-xl border border-white/10 bg-[#20252f] px-3 py-2.5 text-sm text-white outline-none focus:border-violet-500">
-                  <option value={1}>1 ciclo</option><option value={2}>2 ciclos</option><option value={3}>3 ciclos</option>
+                  <option value={1}>1 ciclo · mínimo</option><option value={2}>2 ciclos · recomendado</option><option value={3}>3 ciclos · máxima seguridad</option>
                 </select>
-              </label>
+              </div>
             </div>
           </div>
 
           <div className="rounded-2xl border border-white/10 bg-[#161a24] p-4">
             <h2 className="flex items-center gap-2 text-base font-semibold text-white"><CircleDollarSign className="h-4 w-4 text-amber-300" /> Precios del GTL</h2>
             <div className="mt-4 space-y-3">
-              <label className="flex items-center justify-between gap-3 text-xs text-mist-400"><span>Harvest Tool</span><input type="number" min={0} value={harvestToolPrice} onChange={(event) => setHarvestToolPrice(Math.max(0, Number(event.target.value) || 0))} className="w-28 rounded-lg border border-white/10 bg-[#20252f] px-2.5 py-2 text-right text-sm text-white outline-none focus:border-violet-500" /></label>
-              <label className="flex items-center justify-between gap-3 text-xs text-mist-400"><span>{targetName}</span><input type="number" min={0} value={targetPrice} onChange={(event) => setTargetPrice(Math.max(0, Number(event.target.value) || 0))} className="w-28 rounded-lg border border-white/10 bg-[#20252f] px-2.5 py-2 text-right text-sm text-white outline-none focus:border-violet-500" /></label>
+              <FieldLabel label="Harvest Tool" tip="Precio de un extractor de semillas. La calculadora lo multiplica por cada baya fuente que necesitas procesar para obtener las semillas." compact />
+              <label className="flex items-center justify-between gap-3 text-xs text-mist-400"><span className="sr-only">Harvest Tool</span><input type="number" min={0} value={harvestToolPrice} onChange={(event) => setHarvestToolPrice(Math.max(0, Number(event.target.value) || 0))} className="w-28 rounded-lg border border-white/10 bg-[#20252f] px-2.5 py-2 text-right text-sm text-white outline-none focus:border-violet-500" /></label>
+              <label className="flex items-center justify-between gap-3 text-xs text-mist-400"><span className="flex items-center gap-1.5"><span>{targetName}</span><InfoTip text="Precio al que venderías una unidad de la baya objetivo en el GTL. Se usa para calcular los ingresos del ciclo." /></span><input type="number" min={0} value={targetPrice} onChange={(event) => setTargetPrice(Math.max(0, Number(event.target.value) || 0))} className="w-28 rounded-lg border border-white/10 bg-[#20252f] px-2.5 py-2 text-right text-sm text-white outline-none focus:border-violet-500" /></label>
               <div className="space-y-2 border-t border-white/10 pt-3">
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-mist-500">Semillas por sabor</p>
-                {(Object.keys(flavorLabels) as Flavor[]).map((flavor) => <div key={flavor} className="grid grid-cols-[1fr_76px_76px] items-center gap-2"><span className="text-xs text-mist-400">{flavorLabels[flavor]}</span><input aria-label={`${flavorLabels[flavor]} normal`} type="number" min={0} value={seedPrices[flavor].plain} onChange={(event) => setSeedPrices((current) => ({ ...current, [flavor]: { ...current[flavor], plain: Math.max(0, Number(event.target.value) || 0) } }))} className="rounded-lg border border-white/10 bg-[#20252f] px-2 py-1.5 text-right text-xs text-white outline-none focus:border-violet-500" /><input aria-label={`${flavorLabels[flavor]} muy`} type="number" min={0} value={seedPrices[flavor].very} onChange={(event) => setSeedPrices((current) => ({ ...current, [flavor]: { ...current[flavor], very: Math.max(0, Number(event.target.value) || 0) } }))} className="rounded-lg border border-white/10 bg-[#20252f] px-2 py-1.5 text-right text-xs text-white outline-none focus:border-violet-500" /></div>)}
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-mist-500">Semillas necesarias para {targetName} <InfoTip text="Solo se muestran los sabores que intervienen en la receta de la baya seleccionada. El primer valor es la semilla normal y el segundo la semilla Muy." /></p>
+                {Array.from(new Set(recipe.map((seed) => seed.flavor))).map((flavor) => <div key={flavor} className="grid grid-cols-[1fr_76px_76px] items-center gap-2"><span className="text-xs text-mist-400">{flavorLabels[flavor]}</span><input aria-label={`${flavorLabels[flavor]} normal`} type="number" min={0} value={seedPrices[flavor].plain} onChange={(event) => setSeedPrices((current) => ({ ...current, [flavor]: { ...current[flavor], plain: Math.max(0, Number(event.target.value) || 0) } }))} className="rounded-lg border border-white/10 bg-[#20252f] px-2 py-1.5 text-right text-xs text-white outline-none focus:border-violet-500" /><input aria-label={`${flavorLabels[flavor]} muy`} type="number" min={0} value={seedPrices[flavor].very} onChange={(event) => setSeedPrices((current) => ({ ...current, [flavor]: { ...current[flavor], very: Math.max(0, Number(event.target.value) || 0) } }))} className="rounded-lg border border-white/10 bg-[#20252f] px-2 py-1.5 text-right text-xs text-white outline-none focus:border-violet-500" /></div>)}
                 <div className="grid grid-cols-[1fr_76px_76px] gap-2 text-[10px] text-mist-600"><span></span><span className="text-right">Normal</span><span className="text-right">Muy</span></div>
               </div>
-              <label className="block border-t border-white/10 pt-3 text-xs text-mist-400">Probabilidad de semilla Plain: <span className="font-semibold text-white">{plainChance}%</span>
-                <input type="range" min={50} max={90} value={plainChance} onChange={(event) => setPlainChance(Number(event.target.value))} className="mt-2 w-full accent-violet-500" />
-                <span className="mt-1 block text-[11px] text-mist-500">El resto se considera Very.</span>
-              </label>
+              <div className="border-t border-white/10 pt-3">
+                <div className="flex items-center justify-between text-xs text-mist-400"><span className="flex items-center gap-1.5">Probabilidad de semilla Normal <InfoTip text="Porcentaje estimado de semillas normales al usar un Harvest Tool. El resto se considera semilla Muy. Déjalo en el valor recomendado si no tienes datos propios." /></span><span className="font-semibold text-white">{plainChance}%</span></div>
+                <input aria-label="Probabilidad de semilla Normal" type="range" min={50} max={90} value={plainChance} onChange={(event) => setPlainChance(Number(event.target.value))} className="mt-2 w-full accent-violet-500" />
+              </div>
             </div>
           </div>
         </aside>
@@ -285,6 +290,17 @@ export default function BerryCalculator() {
       </div>
     </section>
   )
+}
+
+function FieldLabel({ label, tip, compact = false }: { label: string; tip: string; compact?: boolean }) {
+  return <div className={`${compact ? "mb-1.5" : ""} flex items-center gap-1.5 text-xs font-medium text-mist-400`}><span>{label}</span><InfoTip text={tip} /></div>
+}
+
+function InfoTip({ text }: { text: string }) {
+  return <span className="group relative inline-flex" tabIndex={0} aria-label="Más información">
+    <span className="flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-mist-600/70 text-[10px] font-bold text-mist-500 transition-colors group-hover:border-violet-400 group-hover:text-violet-300 group-focus:border-violet-400 group-focus:text-violet-300">?</span>
+    <span role="tooltip" className="pointer-events-none invisible absolute bottom-full left-1/2 z-50 mb-2 w-64 -translate-x-1/2 rounded-xl border border-white/10 bg-[#0f131c] px-3 py-2 text-left text-[11px] font-normal leading-5 text-mist-300 opacity-0 shadow-2xl transition-all group-hover:visible group-hover:opacity-100 group-focus:visible group-focus:opacity-100">{text}</span>
+  </span>
 }
 
 function Metric({ icon, label, value, suffix, positive }: { icon: ReactNode; label: string; value: string; suffix: string; positive?: boolean }) {
