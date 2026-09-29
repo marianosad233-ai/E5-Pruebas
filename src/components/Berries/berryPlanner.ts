@@ -26,8 +26,30 @@ export const berries: RawBerry[] = berryData
 export interface SourceBerry {
   berry: RawBerry
   flavor: Flavor
-  /** Lo que cuesta replantar una parcela de esta baya (semillas de su propio sabor). */
+  /** Lo que cuesta replantar una parcela de esta baya, con la receta "oficial" del juego. */
   replant: RecipeSeed
+  /**
+   * Formas válidas de replantar una parcela de esta baya: la receta oficial, y una
+   * combinación equivalente en "puntos" (1 Muy = 2 normales) que usa menos normales a
+   * cambio de una Muy. Con receta oficial de 3 normales, la combinación es 1 normal + 1 Muy.
+   */
+  replantOptions: RecipeSeed[][]
+}
+
+const seedPoints = (variant: SeedVariant) => (variant === "very" ? 2 : 1)
+
+/** Formas de expresar el mismo costo de replantado en semillas normales/Muy. */
+function replantOptionsFor(recipe: RecipeSeed): RecipeSeed[][] {
+  const totalPoints = recipe.amount * seedPoints(recipe.variant)
+  const veryCount = Math.floor(totalPoints / 2)
+  const plainCount = totalPoints - veryCount * 2
+  const alt: RecipeSeed[] = []
+  if (plainCount > 0) alt.push({ flavor: recipe.flavor, variant: "plain", amount: plainCount })
+  if (veryCount > 0) alt.push({ flavor: recipe.flavor, variant: "very", amount: veryCount })
+
+  const original = [recipe]
+  const sameAsOriginal = alt.length === 1 && alt[0].variant === recipe.variant && alt[0].amount === recipe.amount
+  return sameAsOriginal ? [original] : [original, alt]
 }
 
 const PURE_SOURCES: Record<Flavor, SourceBerry | undefined> = (() => {
@@ -35,7 +57,7 @@ const PURE_SOURCES: Record<Flavor, SourceBerry | undefined> = (() => {
   for (const berry of berryData) {
     if (berry.recipe.length === 1) {
       const [replant] = berry.recipe
-      map[replant.flavor] = { berry, flavor: replant.flavor, replant }
+      map[replant.flavor] = { berry, flavor: replant.flavor, replant, replantOptions: replantOptionsFor(replant) }
     }
   }
   return map as Record<Flavor, SourceBerry | undefined>
@@ -82,6 +104,14 @@ export interface PlanInput {
   stock: Record<string, number>
 }
 
+export interface ReplantStrategy {
+  recipe: RecipeSeed[]
+  plots: number
+  tools: number
+  netPlain: number
+  netVery: number
+}
+
 export interface FlavorPlan {
   flavor: Flavor
   needPlain: number
@@ -90,6 +120,8 @@ export interface FlavorPlan {
   feasible: boolean
   plots: number
   tools: number
+  /** Cómo se reparten esas parcelas entre las recetas de replantado disponibles. */
+  strategies: ReplantStrategy[]
   surplusPlain: number
   surplusVery: number
 }
@@ -147,34 +179,107 @@ function sourceYield(source: SourceBerry, overrides: Record<number, number>): nu
   return overrides[source.berry.itemId] ?? defaultYield(source.berry)
 }
 
-/** Parcelas de la baya fuente de un sabor necesarias para cubrir needPlain/needVery de ese sabor. */
+const EPS = 1e-9
+const MAX_SEARCH = 20_000
+
+interface SolvedFlavor {
+  feasible: boolean
+  plots: number
+  tools: number
+  strategies: ReplantStrategy[]
+}
+
+const infeasible: SolvedFlavor = { feasible: false, plots: 0, tools: 0, strategies: [] }
+
+/**
+ * Reparte las parcelas de la baya fuente de un sabor entre sus recetas de replantado
+ * (normal×3, o normal+Muy) para cubrir needPlain/needVery con el mínimo de parcelas.
+ * Cada receta rinde distinto neto de normales/Muy, así que suele convenir usar solo
+ * una de las dos según lo que haga falta — pero el buscador prueba las combinaciones.
+ */
 function solveFlavor(
   source: SourceBerry | undefined,
   needPlain: number,
   needVery: number,
   plainChance: number,
   overrides: Record<number, number>,
-): { feasible: boolean; plots: number; tools: number; netPlain: number; netVery: number } {
-  if (needPlain <= 1e-9 && needVery <= 1e-9) return { feasible: true, plots: 0, tools: 0, netPlain: 0, netVery: 0 }
-  if (!source) return { feasible: false, plots: 0, tools: 0, netPlain: 0, netVery: 0 }
+): SolvedFlavor {
+  if (needPlain <= EPS && needVery <= EPS) return { feasible: true, plots: 0, tools: 0, strategies: [] }
+  if (!source) return infeasible
 
   const yieldPerPlot = sourceYield(source, overrides)
-  const seedsPerPlot = yieldPerPlot // 1 semilla por Harvest Tool
-  const plainPerPlot = seedsPerPlot * plainChance - (source.replant.variant === "plain" ? source.replant.amount : 0)
-  const veryPerPlot = seedsPerPlot * (1 - plainChance) - (source.replant.variant === "very" ? source.replant.amount : 0)
+  const rawPlain = yieldPerPlot * plainChance
+  const rawVery = yieldPerPlot * (1 - plainChance)
 
-  const needed: number[] = []
-  if (needPlain > 0) {
-    if (plainPerPlot <= 1e-9) return { feasible: false, plots: 0, tools: 0, netPlain: plainPerPlot, netVery: veryPerPlot }
-    needed.push(needPlain / plainPerPlot)
-  }
-  if (needVery > 0) {
-    if (veryPerPlot <= 1e-9) return { feasible: false, plots: 0, tools: 0, netPlain: plainPerPlot, netVery: veryPerPlot }
-    needed.push(needVery / veryPerPlot)
+  const nets = source.replantOptions.map((recipe) => {
+    const plainCost = recipe.find((s) => s.variant === "plain")?.amount ?? 0
+    const veryCost = recipe.find((s) => s.variant === "very")?.amount ?? 0
+    return { recipe, netPlain: rawPlain - plainCost, netVery: rawVery - veryCost }
+  })
+
+  // Con una sola receta disponible, es una simple división.
+  if (nets.length === 1) {
+    const [A] = nets
+    const needed: number[] = []
+    if (needPlain > 0) {
+      if (A.netPlain <= EPS) return infeasible
+      needed.push(needPlain / A.netPlain)
+    }
+    if (needVery > 0) {
+      if (A.netVery <= EPS) return infeasible
+      needed.push(needVery / A.netVery)
+    }
+    const plots = Math.ceil(Math.max(...needed) - EPS)
+    return {
+      feasible: true,
+      plots,
+      tools: plots * yieldPerPlot,
+      strategies: [{ recipe: A.recipe, plots, tools: plots * yieldPerPlot, netPlain: A.netPlain, netVery: A.netVery }],
+    }
   }
 
-  const plots = Math.ceil(Math.max(...needed) - 1e-9)
-  return { feasible: true, plots, tools: plots * yieldPerPlot, netPlain: plainPerPlot, netVery: veryPerPlot }
+  // Con dos recetas, se prueba cuántas parcelas usar de la primera y se completa con la segunda.
+  const [A, B] = nets
+  if (needPlain > 0 && A.netPlain <= EPS && B.netPlain <= EPS) return infeasible
+  if (needVery > 0 && A.netVery <= EPS && B.netVery <= EPS) return infeasible
+
+  let best: { a: number; b: number; plots: number } | null = null
+
+  for (let a = 0; a <= MAX_SEARCH; a++) {
+    if (best && a >= best.plots) break
+
+    let lo = 0
+    let ok = true
+    for (const [need, netA, netB] of [
+      [needPlain, A.netPlain, B.netPlain],
+      [needVery, A.netVery, B.netVery],
+    ] as const) {
+      const remaining = need - a * netA
+      if (remaining <= EPS) continue
+      if (netB <= EPS) {
+        ok = false
+        break
+      }
+      lo = Math.max(lo, Math.ceil(remaining / netB - EPS))
+    }
+
+    if (!ok) {
+      // Puede que A por sí sola ya no pueda mejorar más allá de este punto para ninguna semilla.
+      if (A.netPlain <= EPS && A.netVery <= EPS) break
+      continue
+    }
+
+    const plots = a + lo
+    if (!best || plots < best.plots) best = { a, b: lo, plots }
+  }
+
+  if (!best) return infeasible
+
+  const strategies: ReplantStrategy[] = []
+  if (best.a > 0) strategies.push({ recipe: A.recipe, plots: best.a, tools: best.a * yieldPerPlot, netPlain: A.netPlain, netVery: A.netVery })
+  if (best.b > 0) strategies.push({ recipe: B.recipe, plots: best.b, tools: best.b * yieldPerPlot, netPlain: B.netPlain, netVery: B.netVery })
+
+  return { feasible: true, plots: best.plots, tools: best.plots * yieldPerPlot, strategies }
 }
 
 function sumNeeds(recipe: RecipeSeed[], targetPlots: number): Map<Flavor, { plain: number; very: number }> {
@@ -281,8 +386,8 @@ export function computePlan(input: PlanInput): Plan {
   const flavors: FlavorPlan[] = Array.from(needsMap.entries()).map(([flavor, need]) => {
     const source = sourceForFlavor(flavor)
     const solved = solveFlavor(source, need.plain, need.very, input.plainChance, input.sourceYields)
-    const producedPlain = solved.plots * Math.max(0, solved.netPlain)
-    const producedVery = solved.plots * Math.max(0, solved.netVery)
+    const producedPlain = solved.strategies.reduce((sum, s) => sum + s.plots * Math.max(0, s.netPlain), 0)
+    const producedVery = solved.strategies.reduce((sum, s) => sum + s.plots * Math.max(0, s.netVery), 0)
     return {
       flavor,
       needPlain: need.plain,
@@ -291,6 +396,7 @@ export function computePlan(input: PlanInput): Plan {
       feasible: solved.feasible,
       plots: solved.plots,
       tools: solved.tools,
+      strategies: solved.strategies,
       surplusPlain: solved.feasible ? Math.max(0, producedPlain - need.plain) : 0,
       surplusVery: solved.feasible ? Math.max(0, producedVery - need.very) : 0,
     }
@@ -302,15 +408,23 @@ export function computePlan(input: PlanInput): Plan {
   const plotsShortfall = plotsUsed - totalPlots
   const feasible = flavors.every((item) => item.feasible)
 
-  const start: StartRow[] = flavors
-    .filter((item) => item.source && item.plots > 0)
-    .map((item) => {
-      const { flavor, variant, amount } = item.source!.replant
-      const needed = amount * item.plots
-      const inStock = input.stock[`${flavor}-${variant}`] ?? 0
-      const missing = Math.max(0, needed - inStock)
-      return { flavor, variant, needed, inStock, missing, cost: missing * prices.seeds[flavor][variant] }
-    })
+  // Semillas para arrancar: cada receta usada aporta su propio costo de replantado.
+  const startMap = new Map<string, { flavor: Flavor; variant: SeedVariant; needed: number }>()
+  for (const item of flavors) {
+    for (const strategy of item.strategies) {
+      for (const seed of strategy.recipe) {
+        const key = `${seed.flavor}-${seed.variant}`
+        const current = startMap.get(key) ?? { flavor: seed.flavor, variant: seed.variant, needed: 0 }
+        current.needed += seed.amount * strategy.plots
+        startMap.set(key, current)
+      }
+    }
+  }
+  const start: StartRow[] = Array.from(startMap.values()).map((row) => {
+    const inStock = input.stock[`${row.flavor}-${row.variant}`] ?? 0
+    const missing = Math.max(0, row.needed - inStock)
+    return { ...row, inStock, missing, cost: missing * prices.seeds[row.flavor][row.variant] }
+  })
 
   const targetBerries = targetPlots * input.targetYield
   const net = 1 - prices.taxPct / 100

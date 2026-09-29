@@ -16,6 +16,7 @@ import {
   defaultYield,
   sourceForFlavor,
   type Flavor,
+  type FlavorPlan,
   type PlanMode,
   type SeedVariant,
 } from "./Berries/berryPlanner"
@@ -36,7 +37,7 @@ const flavorLabels: Record<Flavor, string> = {
 const spanishBerryNames: Record<string, string> = {
   "Leppa Berry": "Zanama",
   "Sitrus Berry": "Zidra",
-  "Cheri Berry": "Cereza",
+  "Cheri Berry": "Zreza",
   "Pecha Berry": "Meloc",
   "Rawst Berry": "Safre",
   "Chesto Berry": "Atania",
@@ -82,7 +83,6 @@ interface Settings {
   accounts: number
   charactersPerAccount: number
   plotsPerCharacter: number
-  canTransfer: boolean
   targetId: string
   mode: PlanMode
   plotsToPlant: number
@@ -101,10 +101,9 @@ const DEFAULT_SETTINGS: Settings = {
   accounts: 2,
   charactersPerAccount: 3,
   plotsPerCharacter: 271,
-  canTransfer: true,
   targetId: "leppa",
-  mode: "max",
-  plotsToPlant: 100,
+  mode: "fixed",
+  plotsToPlant: 960,
   marginPct: 10,
   targetYield: null,
   plainChance: 70,
@@ -181,7 +180,7 @@ export default function BerryCalculator() {
         sourceYields: settings.yieldOverrides,
         accounts: settings.accounts,
         plotsPerAccount,
-        canTransfer: settings.canTransfer,
+        canTransfer: true, // en PokeMMO siempre se pueden pasar semillas entre tus propias cuentas
         mode: settings.mode,
         targetPlots: settings.plotsToPlant,
         marginPct: settings.marginPct,
@@ -225,7 +224,7 @@ export default function BerryCalculator() {
         </button>
       </div>
 
-      {/* ------------------------------ Paso 1: baya y parcelas ------------------------------ */}
+      {/* ------------------------------ Paso 1: baya y cantidad ------------------------------ */}
       <Panel padded className="mt-6">
         <div className="grid gap-5 sm:grid-cols-2">
           <div>
@@ -233,18 +232,16 @@ export default function BerryCalculator() {
             <BerryPicker selectedId={target.id} onSelect={(id) => setSettings((current) => ({ ...current, targetId: id, targetYield: null }))} />
           </div>
           <div>
-            <FieldLabel label="¿Cuántas parcelas quieres usar?" tip="Suma las parcelas de todos tus personajes y cuentas. Ejemplo: 2 cuentas × 3 personajes × 271 parcelas = 1.626." />
-            <div className="flex gap-2">
-              <Segmented<PlanMode>
-                ariaLabel="Modo de cálculo"
-                value={settings.mode}
-                onChange={(value) => update("mode", value)}
-                options={[
-                  { value: "max", label: "Todas las que tenga" },
-                  { value: "fixed", label: "Una cantidad exacta" },
-                ]}
-              />
-            </div>
+            <FieldLabel label="¿Cuánto quieres plantar?" />
+            <Segmented<PlanMode>
+              ariaLabel="Modo de cálculo"
+              value={settings.mode}
+              onChange={(value) => update("mode", value)}
+              options={[
+                { value: "fixed", label: "Una cantidad exacta" },
+                { value: "max", label: "Todas las que tenga" },
+              ]}
+            />
             {settings.mode === "fixed" ? (
               <div className="mt-2">
                 <NumberField ariaLabel={`Parcelas de ${targetName}`} value={settings.plotsToPlant} min={1} max={50000} onChange={(v) => update("plotsToPlant", v)} />
@@ -262,68 +259,58 @@ export default function BerryCalculator() {
           </div>
         </div>
 
-        <div className="mt-5 grid gap-3 border-t border-white/10 pt-5 sm:grid-cols-3">
-          <div>
-            <FieldLabel label="Cuentas" />
-            <NumberField ariaLabel="Cuentas" value={settings.accounts} min={1} max={10} onChange={(v) => update("accounts", v)} />
-          </div>
-          <div>
-            <FieldLabel label="Personajes por cuenta" />
-            <NumberField ariaLabel="Personajes por cuenta" value={settings.charactersPerAccount} min={1} max={3} onChange={(v) => update("charactersPerAccount", v)} />
-          </div>
-          <div>
-            <FieldLabel label="Parcelas por personaje" />
-            <NumberField ariaLabel="Parcelas por personaje" value={settings.plotsPerCharacter} min={1} max={2000} onChange={(v) => update("plotsPerCharacter", v)} />
-          </div>
-        </div>
-        <p className="mt-3 text-xs text-mist-500">
-          Total: <span className="font-semibold text-white">{formatNumber(plan.totalPlots)}</span> parcelas
-        </p>
-        {settings.accounts > 1 && (
-          <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 bg-[#20252f] p-3 text-xs text-mist-300">
-            <input
-              type="checkbox"
-              checked={settings.canTransfer}
-              onChange={(event) => update("canTransfer", event.target.checked)}
-              className="mt-0.5 h-4 w-4 accent-violet-500"
+        {settings.mode === "max" && (
+          <div className="mt-5 border-t border-white/10 pt-5">
+            <p className="mb-3 text-xs text-mist-500">Para calcular el máximo necesitamos saber cuántas parcelas tienes en total.</p>
+            <AccountsConfig
+              accounts={settings.accounts}
+              onAccounts={(v) => update("accounts", v)}
+              charactersPerAccount={settings.charactersPerAccount}
+              onCharacters={(v) => update("charactersPerAccount", v)}
+              plotsPerCharacter={settings.plotsPerCharacter}
+              onPlots={(v) => update("plotsPerCharacter", v)}
+              totalPlots={plan.totalPlots}
             />
-            <span>
-              <span className="font-semibold text-white">Puedo pasar semillas entre mis cuentas</span>
-              <InfoTip text="Activado: tus cuentas comparten semillas, así que una puede cultivar solo la baya objetivo y otra solo producir semillas. Desactivado: cada cuenta debe producir sus propias semillas por separado." />
-              <br />
-              Si tienes otra cuenta que solo usas para farmear semillas, actívalo.
-            </span>
-          </label>
+          </div>
         )}
       </Panel>
 
       {/* ------------------------------ Resultado principal ------------------------------ */}
       <div className="mt-4 space-y-4">
-        <StatusBanner
-          fits={plan.fits}
-          feasible={plan.feasible}
-          targetName={targetName}
-          targetPlots={plan.targetPlots}
-          totalPlots={plan.totalPlots}
-          maxTargetPlots={plan.maxTargetPlots}
-          shortfall={shortfall}
-          showUseMax={settings.mode === "fixed"}
-          onUseMax={() => update("mode", "max")}
-        />
-
         <div className="grid gap-4 sm:grid-cols-3">
           <Metric icon={<Package />} label={`Parcelas de ${targetName}`} value={formatNumber(plan.targetPlots)} suffix={`≈ ${formatNumber(plan.economics.targetBerries)} bayas por ciclo`} />
-          <Metric icon={<Sprout />} label="Parcelas para producir semillas" value={formatNumber(plan.sourcePlots)} suffix={`de ${formatNumber(plan.totalPlots)} parcelas en total`} />
+          <Metric icon={<Sprout />} label="Parcelas para producir semillas" value={formatNumber(plan.sourcePlots)} suffix="las que salen de la receta" />
           <Metric icon={<TrendingUp />} label="Beneficio estimado" value={formatMoney(plan.economics.profit)} suffix="por ciclo, vendiendo a tus precios" positive={plan.economics.profit >= 0} />
         </div>
 
+        {/* ------------------------------ Semillas necesarias ------------------------------ */}
+        <Panel padded>
+          <h2 className="text-lg font-semibold text-white">1. Semillas que necesitas por ciclo</h2>
+          <p className="mt-1 text-xs text-mist-500">
+            Para plantar {formatNumber(plan.targetPlots)} de {targetName}, multiplicando la receta por esa cantidad de parcelas.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+            {plan.needs.map((seed) => (
+              <div key={`${seed.flavor}-${seed.variant}`} className="flex items-center gap-3 rounded-xl border border-white/10 bg-[#20252f] p-3">
+                <img src={icon(seedIds[seed.flavor][seed.variant])} alt="" className="h-9 w-9 object-contain" />
+                <div>
+                  <p className="text-lg font-bold text-white">{formatNumber(seed.total)}</p>
+                  <p className="text-[11px] text-mist-500">
+                    {seedLabel(seed.flavor, seed.variant)} · {seed.amount} por parcela
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Panel>
+
         {/* ------------------------------ Cómo se logra ------------------------------ */}
         <Panel padded>
-          <h2 className="text-lg font-semibold text-white">Qué plantar para conseguir las semillas</h2>
+          <h2 className="text-lg font-semibold text-white">2. Qué plantar para conseguir esas semillas</h2>
           <p className="mt-1 text-xs leading-5 text-mist-500">
             {targetName} necesita {target.recipe.map((seed) => `${seed.amount} ${seedLabel(seed.flavor, seed.variant)}`).join(" + ")} por
-            parcela. Cada sabor tiene una sola baya que lo produce en forma pura; ya se descuentan las semillas que esa baya gasta en
-            replantarse a sí misma.
+            parcela. Cada sabor tiene una sola baya que lo produce en forma pura. Esa baya se puede replantar con 3 semillas normales, o
+            con 1 normal + 1 Muy — la calculadora usa la que deje más de lo que necesitas.
           </p>
           <div className="mt-4 space-y-3">
             {plan.flavors.map((flavorPlan) => {
@@ -342,19 +329,28 @@ export default function BerryCalculator() {
                     </div>
                   </div>
                   {flavorPlan.feasible ? (
-                    <div className="flex flex-1 flex-wrap items-center gap-x-6 gap-y-1 text-xs text-mist-400">
-                      <span>
-                        <span className="text-base font-bold text-white">{formatNumber(flavorPlan.plots)}</span> parcelas
-                      </span>
-                      <span>
-                        <span className="font-semibold text-mist-300">{formatNumber(flavorPlan.tools)}</span> Harvest Tools
-                      </span>
-                      {(flavorPlan.surplusPlain > 0.5 || flavorPlan.surplusVery > 0.5) && (
-                        <span className="text-emerald-300">
-                          sobran {formatNumber(flavorPlan.surplusPlain, 1)} {seedLabel(flavorPlan.flavor, "plain")} y {formatNumber(flavorPlan.surplusVery, 1)}{" "}
-                          {seedLabel(flavorPlan.flavor, "very")}
+                    <div className="flex-1 space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-xs text-mist-400">
+                        <span>
+                          <span className="text-base font-bold text-white">{formatNumber(flavorPlan.plots)}</span> parcelas
                         </span>
-                      )}
+                        <span>
+                          <span className="font-semibold text-mist-300">{formatNumber(flavorPlan.tools)}</span> Harvest Tools
+                        </span>
+                        {(flavorPlan.surplusPlain > 0.5 || flavorPlan.surplusVery > 0.5) && (
+                          <span className="text-emerald-300">
+                            sobran {formatNumber(flavorPlan.surplusPlain, 1)} {seedLabel(flavorPlan.flavor, "plain")} y {formatNumber(flavorPlan.surplusVery, 1)}{" "}
+                            {seedLabel(flavorPlan.flavor, "very")}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-[11px] text-mist-500">
+                        {flavorPlan.strategies.map((strategy, index) => (
+                          <span key={index}>
+                            {formatNumber(strategy.plots)} parcelas replantadas con {strategy.recipe.map((s) => `${s.amount} ${seedLabel(s.flavor, s.variant)}`).join(" + ")}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <p className="flex items-center gap-2 text-xs text-red-300">
@@ -367,14 +363,49 @@ export default function BerryCalculator() {
           </div>
         </Panel>
 
-        {/* ------------------------------ Reparto por cuenta ------------------------------ */}
-        {settings.accounts > 1 && (
-          <Panel padded>
-            <h2 className="text-lg font-semibold text-white">Reparto entre tus cuentas</h2>
-            <p className="mt-1 text-xs text-mist-500">
-              {settings.canTransfer ? "Empiezas llenando de semillas y sigues con la baya objetivo, pasando semillas entre cuentas." : "Cada cuenta planta la baya objetivo y produce sus propias semillas."}
-            </p>
-            <div className="mt-4 space-y-3">
+        {/* ------------------------------ ¿Te alcanzan tus parcelas? ------------------------------ */}
+        <Panel padded>
+          <h2 className="text-lg font-semibold text-white">
+            3. ¿Te alcanzan tus parcelas? <span className="font-normal text-mist-500">(opcional)</span>
+          </h2>
+          <p className="mt-1 text-xs text-mist-500">
+            Esto no cambia las semillas ni las bayas fuente de arriba: solo comprueba si te caben en el terreno que tienes y, si usas
+            varias cuentas, cómo repartirlo. Si vas a llevar la cuenta tú mismo, puedes saltarte este paso.
+          </p>
+
+          {settings.mode === "fixed" && (
+            <div className="mt-4">
+              <AccountsConfig
+                accounts={settings.accounts}
+                onAccounts={(v) => update("accounts", v)}
+                charactersPerAccount={settings.charactersPerAccount}
+                onCharacters={(v) => update("charactersPerAccount", v)}
+                plotsPerCharacter={settings.plotsPerCharacter}
+                onPlots={(v) => update("plotsPerCharacter", v)}
+                totalPlots={plan.totalPlots}
+              />
+            </div>
+          )}
+
+          <div className="mt-4">
+            <StatusBanner
+              fits={plan.fits}
+              feasible={plan.feasible}
+              targetName={targetName}
+              targetPlots={plan.targetPlots}
+              totalPlots={plan.totalPlots}
+              maxTargetPlots={plan.maxTargetPlots}
+              shortfall={shortfall}
+              showUseMax={settings.mode === "fixed"}
+              onUseMax={() => update("mode", "max")}
+            />
+          </div>
+
+          {settings.accounts > 1 && (
+            <div className="mt-5 space-y-3 border-t border-white/10 pt-5">
+              <p className="text-xs font-medium text-mist-400">
+                Reparto sugerido entre tus {settings.accounts} cuentas (una siembra semillas, la otra la baya objetivo; en PokeMMO puedes pasarlas entre tus cuentas):
+              </p>
               {plan.distribution.map((row) => (
                 <div key={row.account}>
                   <div className="flex items-center justify-between text-xs">
@@ -390,8 +421,23 @@ export default function BerryCalculator() {
                 </div>
               ))}
             </div>
-          </Panel>
-        )}
+          )}
+
+          {plan.fits && (
+            <div className="mt-5 border-t border-white/10 pt-5">
+              <p className="mb-3 text-xs font-medium text-mist-400">Qué le toca plantar a cada personaje:</p>
+              <CharacterAllocationTable
+                target={target}
+                targetName={targetName}
+                targetPlots={plan.targetPlots}
+                flavors={plan.flavors}
+                accounts={settings.accounts}
+                charactersPerAccount={settings.charactersPerAccount}
+                plotsPerCharacter={settings.plotsPerCharacter}
+              />
+            </div>
+          )}
+        </Panel>
 
         {/* ------------------------------ Arranque ------------------------------ */}
         {plan.start.length > 0 && (
@@ -685,6 +731,155 @@ function AdvancedSettings(props: {
 /* ------------------------------------------------------------------ */
 /*  Componentes de apoyo                                               */
 /* ------------------------------------------------------------------ */
+
+function AccountsConfig(props: {
+  accounts: number
+  onAccounts: (value: number) => void
+  charactersPerAccount: number
+  onCharacters: (value: number) => void
+  plotsPerCharacter: number
+  onPlots: (value: number) => void
+  totalPlots: number
+}) {
+  return (
+    <div>
+      <div className="grid gap-3 sm:grid-cols-3">
+        <div>
+          <FieldLabel label="Cuentas" />
+          <NumberField ariaLabel="Cuentas" value={props.accounts} min={1} max={10} onChange={props.onAccounts} />
+        </div>
+        <div>
+          <FieldLabel label="Personajes por cuenta" />
+          <NumberField ariaLabel="Personajes por cuenta" value={props.charactersPerAccount} min={1} max={3} onChange={props.onCharacters} />
+        </div>
+        <div>
+          <FieldLabel label="Parcelas por personaje" />
+          <NumberField ariaLabel="Parcelas por personaje" value={props.plotsPerCharacter} min={1} max={2000} onChange={props.onPlots} />
+        </div>
+      </div>
+      <p className="mt-3 text-xs text-mist-500">
+        Total: <span className="font-semibold text-white">{formatNumber(props.totalPlots)}</span> parcelas
+      </p>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/*  Reparto por personaje                                              */
+/* ------------------------------------------------------------------ */
+
+interface CharacterSlot {
+  account: number
+  character: number
+  entries: Array<{ berry: RawBerry; plots: number }>
+  free: number
+}
+
+/**
+ * Reparte la baya objetivo desde el primer personaje hacia adelante, y las bayas
+ * fuente desde el último personaje hacia atrás (así se pueden pasar semillas entre
+ * cuentas, empezando por la última). Cada personaje puede terminar con una sola
+ * baya o con la cola de una y el principio de otra, si no encajan justo.
+ */
+function allocateCharacters(
+  target: RawBerry,
+  targetPlots: number,
+  sourceItems: Array<{ berry: RawBerry; plots: number }>,
+  accounts: number,
+  charactersPerAccount: number,
+  plotsPerCharacter: number,
+): CharacterSlot[] {
+  const slots: CharacterSlot[] = []
+  for (let account = 1; account <= accounts; account++) {
+    for (let character = 1; character <= charactersPerAccount; character++) {
+      slots.push({ account, character, entries: [], free: plotsPerCharacter })
+    }
+  }
+
+  let remainingTarget = targetPlots
+  for (const slot of slots) {
+    if (remainingTarget <= 0) break
+    const take = Math.min(slot.free, remainingTarget)
+    if (take > 0) {
+      slot.entries.push({ berry: target, plots: take })
+      slot.free -= take
+      remainingTarget -= take
+    }
+  }
+
+  let tailIndex = slots.length - 1
+  for (const item of [...sourceItems].sort((a, b) => b.plots - a.plots)) {
+    let remaining = item.plots
+    while (remaining > 0 && tailIndex >= 0) {
+      const slot = slots[tailIndex]
+      if (slot.free <= 0) {
+        tailIndex--
+        continue
+      }
+      const take = Math.min(slot.free, remaining)
+      slot.entries.push({ berry: item.berry, plots: take })
+      slot.free -= take
+      remaining -= take
+    }
+  }
+
+  return slots
+}
+
+function CharacterAllocationTable(props: {
+  target: RawBerry
+  targetName: string
+  targetPlots: number
+  flavors: FlavorPlan[]
+  accounts: number
+  charactersPerAccount: number
+  plotsPerCharacter: number
+}) {
+  const sourceItems = props.flavors
+    .filter((flavorPlan) => flavorPlan.feasible && flavorPlan.source && flavorPlan.plots > 0)
+    .map((flavorPlan) => ({ berry: flavorPlan.source!.berry, plots: flavorPlan.plots }))
+
+  const slots = allocateCharacters(
+    props.target,
+    props.targetPlots,
+    sourceItems,
+    props.accounts,
+    props.charactersPerAccount,
+    props.plotsPerCharacter,
+  )
+
+  const byAccount = Array.from({ length: props.accounts }, (_, index) => slots.filter((slot) => slot.account === index + 1))
+
+  return (
+    <div className="grid gap-3 sm:grid-cols-2">
+      {byAccount.map((accountSlots, accountIndex) => (
+        <div key={accountIndex} className="rounded-xl border border-white/10 bg-[#20252f] p-3">
+          <p className="mb-2 text-xs font-semibold text-white">Cuenta {accountIndex + 1}</p>
+          <div className="space-y-2">
+            {accountSlots.map((slot) => (
+              <div key={slot.character} className="flex items-center gap-2 text-xs text-mist-400">
+                <span className="w-14 shrink-0 text-mist-500">PJ {slot.character}</span>
+                {slot.entries.length === 0 ? (
+                  <span className="text-mist-600">sin usar</span>
+                ) : (
+                  <div className="flex flex-1 flex-wrap gap-x-3 gap-y-1">
+                    {slot.entries.map((entry, index) => (
+                      <span key={index} className="inline-flex items-center gap-1.5 text-mist-300">
+                        <img src={icon(entry.berry.itemId)} alt="" className="h-4 w-4 object-contain" />
+                        {formatNumber(entry.plots)} {berryName(entry.berry)}
+                      </span>
+                    ))}
+                  </div>
+                )}
+                {slot.free > 0 && <span className="shrink-0 text-mist-600">+{formatNumber(slot.free)} libres</span>}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 function StatusBanner(props: {
   fits: boolean
