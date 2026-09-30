@@ -233,8 +233,8 @@ function solveFlavor(
     return {
       feasible: true,
       plots,
-      tools: plots * yieldPerPlot,
-      strategies: [{ recipe: A.recipe, plots, tools: plots * yieldPerPlot, netPlain: A.netPlain, netVery: A.netVery }],
+      tools: plots, // 1 Harvest Tool por parcela cosechada, sin importar cuántas bayas dé
+      strategies: [{ recipe: A.recipe, plots, tools: plots, netPlain: A.netPlain, netVery: A.netVery }],
     }
   }
 
@@ -276,10 +276,11 @@ function solveFlavor(
   if (!best) return infeasible
 
   const strategies: ReplantStrategy[] = []
-  if (best.a > 0) strategies.push({ recipe: A.recipe, plots: best.a, tools: best.a * yieldPerPlot, netPlain: A.netPlain, netVery: A.netVery })
-  if (best.b > 0) strategies.push({ recipe: B.recipe, plots: best.b, tools: best.b * yieldPerPlot, netPlain: B.netPlain, netVery: B.netVery })
+  // 1 Harvest Tool por parcela cosechada, sin importar cuántas bayas dé.
+  if (best.a > 0) strategies.push({ recipe: A.recipe, plots: best.a, tools: best.a, netPlain: A.netPlain, netVery: A.netVery })
+  if (best.b > 0) strategies.push({ recipe: B.recipe, plots: best.b, tools: best.b, netPlain: B.netPlain, netVery: B.netVery })
 
-  return { feasible: true, plots: best.plots, tools: best.plots * yieldPerPlot, strategies }
+  return { feasible: true, plots: best.plots, tools: best.plots, strategies }
 }
 
 function sumNeeds(recipe: RecipeSeed[], targetPlots: number): Map<Flavor, { plain: number; very: number }> {
