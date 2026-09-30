@@ -80,19 +80,18 @@ export function BerryAccountItem({
               : `Regada: ${convertDiffToString(timeFromWater)}`
 
             return (
-              <Droplet
-                key={index}
-                title={title}
-                aria-label={title}
-                className={`h-5 w-5 ${
-                  state.className ||
-                  (state.fill === "currentColor"
-                    ? "text-mist-100"
-                    : "text-mist-600")
-                }`}
-                fill={state.fill}
-                strokeWidth={2}
-              />
+              <span key={index} title={title} aria-label={title}>
+                <Droplet
+                  className={`h-5 w-5 ${
+                    state.className ||
+                    (state.fill === "currentColor"
+                      ? "text-mist-100"
+                      : "text-mist-600")
+                  }`}
+                  fill={state.fill}
+                  strokeWidth={2}
+                />
+              </span>
             )
           })}
         </span>
