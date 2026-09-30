@@ -79,13 +79,19 @@ button:focus-visible,
   to { transform: translateY(0); opacity: 1; }
 }
 
-@keyframes dropletBlink {
-  from { color: #f87171; opacity: 1; }
-  to { color: #f87171; opacity: 0.25; }
+/* PokeMMO Hub: gotas secas alternan entre el color normal y rojo. */
+.blinking-droplet {
+  animation: berryHubBlink 2s infinite alternate;
+  color: #dc3545;
 }
 
-.animate-droplet-blink {
-  animation: dropletBlink 1s infinite alternate;
+@keyframes berryHubBlink {
+  from {
+    color: #000000;
+  }
+  to {
+    color: #dc3545;
+  }
 }
 
 @keyframes waterPulse {
