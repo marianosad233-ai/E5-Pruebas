@@ -79,7 +79,7 @@ button:focus-visible,
   to { transform: translateY(0); opacity: 1; }
 }
 
-/* PokeMMO Hub: gotas secas alternan entre el color normal y rojo. */
+/* Gotas secas: alternan entre gris claro y rojo (visible sobre fondo oscuro). */
 .blinking-droplet {
   animation: berryHubBlink 2s infinite alternate;
   color: #dc3545;
@@ -87,7 +87,7 @@ button:focus-visible,
 
 @keyframes berryHubBlink {
   from {
-    color: #000000;
+    color: #e5e7eb;
   }
   to {
     color: #dc3545;

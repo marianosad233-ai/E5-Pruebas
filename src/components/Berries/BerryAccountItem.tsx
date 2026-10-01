@@ -2,25 +2,9 @@ import { Droplet } from "lucide-react"
 import { useEffect, useState } from "react"
 import type { BerryData } from "./berries.types"
 import { useBerries } from "./BerriesContext"
+import { MAX_DROPS, getDropletInfo } from "./berryDroplets"
+import { BerryTimeChanger } from "./BerryTimeChanger"
 import { convertDiffToString, diffTimestamp, getMsFromHour } from "./BerryTime"
-
-// Replica la lógica de PokeMMO Hub para las 5 gotas de riego.
-// Hub utiliza dos escalas: bayas normales y bayas de crecimiento largo.
-function getDropletState(hours: number, limit: number, isLongGrowth: boolean) {
-  if (!isLongGrowth && hours <= -10) {
-    return { color: "red", className: "blinking-droplet", fill: "none" as const }
-  }
-  if (hours <= -15) {
-    return { color: "red", className: "blinking-droplet", fill: "none" as const }
-  }
-  if (hours <= limit) {
-    return { fill: "" as const, className: "", color: "" }
-  }
-  if (limit === -9 && hours === -7) {
-    return { fill: "" as const, className: "", color: "" }
-  }
-  return { fill: "currentColor" as const, className: "", color: "" }
-}
 
 export function BerryAccountItem({
   planted,
@@ -31,30 +15,28 @@ export function BerryAccountItem({
   berry: BerryData
   itemName: (id: number) => string
 }) {
-  const { waterBerry, removeBerry } = useBerries()
-  const [now, setNow] = useState(Date.now())
+  const { waterBerry, removeBerry, updateBerry } = useBerries()
+  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
     const interval = window.setInterval(() => setNow(Date.now()), 60 * 1000)
     return () => window.clearInterval(interval)
   }, [])
 
-  // PokeMMO Hub considera una baya recién plantada como "aún no regada"
-  // y calcula las gotas desde 6 horas antes de tsLastWater.
-  const isJustPlanted = planted.tsPlant === planted.tsLastWater
-  const timeFromWater = isJustPlanted
-    ? diffTimestamp(planted.tsLastWater - getMsFromHour(6), now, true)
-    : diffTimestamp(planted.tsLastWater, now)
+  const { drops, neverWatered, dry } = getDropletInfo(planted, berry.grow_time, now)
 
-  const timeToReady = diffTimestamp(
-    planted.tsPlant + getMsFromHour(berry.grow_time),
-    now,
-  )
+  const timeToReady = diffTimestamp(planted.tsPlant + getMsFromHour(berry.grow_time), now)
+  const wateredLabel = neverWatered
+    ? "Aún no regada"
+    : `Regada: ${convertDiffToString(diffTimestamp(planted.tsLastWater, now))}`
 
-  const isLongGrowth =
-    berry.grow_time === 42 || berry.grow_time === 44 || berry.grow_time === 67
-
-  const hours = isLongGrowth ? timeFromWater.hour : timeFromWater.hour + 1
+  // Si la baya nunca se ha regado, cambiar la fecha de siembra mueve también
+  // el "último riego"; así sigue contando como "aún no regada".
+  const changePlantTime = (ts: number) =>
+    updateBerry(
+      planted._id,
+      neverWatered ? { tsPlant: ts, tsLastWater: ts } : { tsPlant: ts },
+    )
 
   return (
     <tr className="border-b border-white/5">
@@ -68,43 +50,41 @@ export function BerryAccountItem({
       </td>
 
       <td className="px-3 py-3">
-        <span className="inline-flex items-center gap-1">
-          {Array.from({ length: 5 }, (_, index) => {
-            const limit = isLongGrowth
-              ? -15 + index * 3
-              : -10 + index * 2
-
-            const state = getDropletState(hours, limit, isLongGrowth)
-            const title = timeFromWater.isJustCalc
-              ? "Aún no regada"
-              : `Regada: ${convertDiffToString(timeFromWater)}`
-
+        <span
+          className="inline-flex items-center gap-1"
+          role="img"
+          aria-label={`${drops} de ${MAX_DROPS} gotas`}
+        >
+          {Array.from({ length: MAX_DROPS }, (_, index) => {
+            const filled = index < drops
             return (
-              <span key={index} title={title} aria-label={title}>
+              <span key={index} title={wateredLabel}>
                 <Droplet
                   className={`h-5 w-5 ${
-                    state.className ||
-                    (state.fill === "currentColor"
-                      ? "text-mist-100"
-                      : "text-mist-600")
+                    dry ? "blinking-droplet" : filled ? "text-sky-300" : "text-mist-600"
                   }`}
-                  fill={state.fill}
+                  fill={filled ? "currentColor" : "none"}
                   strokeWidth={2}
                 />
               </span>
             )
           })}
         </span>
-
-        <div className="mt-1 text-xs text-mist-500">
-          {timeFromWater.isJustCalc
-            ? "Aún no regada"
-            : `Regada: ${convertDiffToString(timeFromWater)}`}
-        </div>
+        <BerryTimeChanger
+          label="Cambiar fecha y hora del riego"
+          value={planted.tsLastWater}
+          onSelectDate={(ts) => updateBerry(planted._id, { tsLastWater: ts })}
+        />
+        <div className="mt-1 text-xs text-mist-500">{wateredLabel}</div>
       </td>
 
       <td className="px-3 py-3 text-mist-200">
         {convertDiffToString(timeToReady)}
+        <BerryTimeChanger
+          label="Cambiar fecha y hora de siembra"
+          value={planted.tsPlant}
+          onSelectDate={changePlantTime}
+        />
       </td>
 
       <td className="px-3 py-3">

@@ -14,6 +14,7 @@ interface SiteHeaderProps {
   onBreedingClick: () => void
   onEggMovesClick: () => void
   onBerriesClick: () => void
+  onLocateMoClick: () => void
   activeStrategy: StrategyId
   onStrategyChange: (strategy: StrategyId) => void
   activeGymRerunStrategy: GymRerunStrategyId
@@ -33,8 +34,9 @@ export const SiteHeader = ({
   onBreedingClick,
   onEggMovesClick,
   onBerriesClick,
+  onLocateMoClick,
 }: SiteHeaderProps) => {
-  const [openMenu, setOpenMenu] = useState<"gym" | "red" | "e4" | "tools" | null>(null)
+  const [openMenu, setOpenMenu] = useState<"gym" | "red" | "e4" | "tools" | "more" | null>(null)
 
   const selectStrategy = (strategyId: StrategyId) => {
     onStrategyChange(strategyId)
@@ -283,6 +285,43 @@ export const SiteHeader = ({
               </div>
             )}
           </div>
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setOpenMenu((value) => (value === "more" ? null : "more"))}
+              aria-haspopup="menu"
+              aria-expanded={openMenu === "more"}
+              className={`flex items-center gap-1.5 rounded-full px-2.5 py-1.5 transition-colors ${
+                openMenu === "more" ? "bg-violet-600/15 text-violet-300" : "hover:text-mist-100"
+              }`}
+            >
+              <span>More</span>
+              <ChevronDown className={`h-3.5 w-3.5 transition-transform ${openMenu === "more" ? "rotate-180" : ""}`} />
+            </button>
+
+            {openMenu === "more" && (
+              <div
+                role="menu"
+                className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-2xl border border-ink-700 bg-ink-950/95 p-1.5 shadow-2xl shadow-black/30 backdrop-blur"
+              >
+                <div className="px-3 py-2">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">More</p>
+                  <p className="mt-1 text-xs text-mist-500">Más herramientas y guías</p>
+                </div>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => { onLocateMoClick(); setOpenMenu(null) }}
+                  className="flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-left text-mist-300 transition-colors hover:bg-ink-800 hover:text-mist-100"
+                >
+                  <span>
+                    <span className="block text-sm font-semibold">Locate MO</span>
+                    <span className="mt-0.5 block text-[11px] text-mist-500">Dónde conseguir cada MO</span>
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -299,6 +338,9 @@ export const SiteHeader = ({
                 <button type="button" onClick={() => { onBreedingClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Crianza</button>
                 <button type="button" onClick={() => { onEggMovesClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Egg Moves Calculator</button>
                 <button type="button" onClick={() => { onBerriesClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Berries Helper</button>
+                <div className="my-1 border-t border-ink-800" />
+                <p className="px-3 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-mist-500">More</p>
+                <button type="button" onClick={() => { onLocateMoClick(); setOpenMenu(null) }} className="w-full rounded-xl px-3 py-2.5 text-left text-sm font-semibold text-mist-200 hover:bg-ink-800">Locate MO</button>
               </div>
             )}
           </div>

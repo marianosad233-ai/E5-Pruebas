@@ -21,6 +21,7 @@ import {
   type SeedVariant,
 } from "./Berries/berryPlanner"
 import type { RawBerry } from "./Berries/berryData"
+import { BerryPlantingMaps } from "./Berries/BerryPlantingMaps"
 
 /* ------------------------------------------------------------------ */
 /*  Etiquetas y nombres                                                */
@@ -523,6 +524,9 @@ export default function BerryCalculator() {
           seedPrices={settings.seedPrices}
           onSeedPrice={setSeedPrice}
         />
+
+        {/* ------------------------------ Mapas de plantación ------------------------------ */}
+        <BerryPlantingMaps />
       </div>
     </section>
   )
