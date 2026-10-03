@@ -32,12 +32,13 @@ export const HeroSection = ({
           >
             Ver equipo necesario
           </a>
-          <a
-            href="#guia"
+          <button
+            type="button"
+            onClick={() => document.getElementById("guia")?.scrollIntoView({ behavior: "smooth", block: "start" })}
             className="rounded-full border border-ink-700 px-5 py-2.5 text-sm font-semibold text-mist-200 transition-colors hover:border-violet-500 hover:text-violet-200"
           >
             Empezar a farmear
-          </a>
+          </button>
         </div>
       </div>
     </section>

@@ -28,11 +28,19 @@ import sevenHells from "../data/strategies/gym-rerun/lucky_girl.json"
 import jinxedBoon from "../data/strategies/red-battle/red.json"
 import colored from "../data/strategies/red-battle/red_colored.json"
 import type { StrategyData } from "./StrategyGuide"
-import {
-  type StrategyId,
-  type GymRerunStrategyId,
-  type RedBattleStrategyId,
-} from "../config/strategies"
+import { useRoute } from "../hooks/useRoute"
+import { routeTitle } from "../config/routes"
+import type { GymRerunStrategyId, RedBattleStrategyId } from "../config/strategies"
+
+const GYM_STRATEGY_DATA: Record<GymRerunStrategyId, StrategyData> = {
+  "six-pillars": sixPillars as unknown as StrategyData,
+  "seven-hells": sevenHells as unknown as StrategyData,
+}
+
+const RED_STRATEGY_DATA: Record<RedBattleStrategyId, StrategyData> = {
+  jinxedboon: jinxedBoon as unknown as StrategyData,
+  colored: colored as unknown as StrategyData,
+}
 
 function countBranches(tricks: Tricks[] = []): number {
   return tricks.reduce((total, t) => total + 1 + countBranches(t.variant), 0)
@@ -46,16 +54,32 @@ export default function PokemonGuide() {
   const [regions, setRegions] = useState<Region[]>([])
   const [regionsLoaded, setRegionsLoaded] = useState(false)
   const [loading, setLoading] = useState(true)
-  const [activeStrategy, setActiveStrategy] = useState<StrategyId>("dingxianyou")
-  const [activeGymRerunStrategy, setActiveGymRerunStrategy] = useState<GymRerunStrategyId>("six-pillars")
-  const [activeRedBattleStrategy, setActiveRedBattleStrategy] = useState<RedBattleStrategyId>("jinxedboon")
-  const [activeSection, setActiveSection] = useState<"e4" | "e4-lab" | "gym" | "red" | "breeding" | "eggMoves" | "berries" | "locateMo">("e4")
+  const { route, visit } = useRoute()
+  const routeKey = "strategy" in route ? `${route.section}/${route.strategy}` : route.section
+  const pageTitle = routeTitle(route)
 
   const detailsRef = useRef<HTMLDivElement>(null)
   const regionSectionRef = useRef<HTMLDivElement>(null)
   const leaderSectionRef = useRef<HTMLDivElement>(null)
 
   const { getPokemonFiles } = useDynamicImports()
+
+  // Al cambiar de ruta (o volver a pulsar la misma): se limpia la selección del E4 y se sube al inicio.
+  const firstRoute = useRef(true)
+  useEffect(() => {
+    setExpandedRegion(null)
+    setExpandedLeader(null)
+    setSelectedPokemon(null)
+    if (firstRoute.current) {
+      firstRoute.current = false // al cargar la página se respeta la posición del navegador
+      return
+    }
+    window.scrollTo(0, 0)
+  }, [routeKey, visit])
+
+  useEffect(() => {
+    document.title = pageTitle
+  }, [pageTitle])
 
   // Load region config
   useEffect(() => {
@@ -229,60 +253,14 @@ export default function PokemonGuide() {
     return { regions: regions.length, leaders, pokemons, branches }
   }, [regions])
 
-  const selectedGymStrategy = (activeGymRerunStrategy === "six-pillars" ? sixPillars : sevenHells) as unknown as StrategyData
-  const selectedRedStrategy = (activeRedBattleStrategy === "jinxedboon" ? jinxedBoon : colored) as unknown as StrategyData
-  const isE4 = activeStrategy === "dingxianyou" || activeStrategy === "dingxianyou-2"
 
   return (
     <div className="min-h-screen bg-transparent text-mist-100">
-      <SiteHeader
-        activeStrategy={activeStrategy}
-        onStrategyChange={(strategy) => {
-          setActiveSection("e4")
-          setActiveStrategy(strategy)
-          setExpandedRegion(null)
-          setExpandedLeader(null)
-          setSelectedPokemon(null)
-        }}
-        onE4LabClick={() => {
-          setActiveSection("e4-lab")
-          setExpandedRegion(null)
-          setExpandedLeader(null)
-          setSelectedPokemon(null)
-        }}
-        activeGymRerunStrategy={activeGymRerunStrategy}
-        onGymRerunStrategyChange={(strategy) => { setActiveSection("gym"); setActiveGymRerunStrategy(strategy) }}
-        activeRedBattleStrategy={activeRedBattleStrategy}
-        onRedBattleStrategyChange={(strategy) => { setActiveSection("red"); setActiveRedBattleStrategy(strategy) }}
-        onBreedingClick={() => {
-          setActiveSection("breeding")
-          setExpandedRegion(null)
-          setExpandedLeader(null)
-          setSelectedPokemon(null)
-        }}
-        onEggMovesClick={() => {
-          setActiveSection("eggMoves")
-          setExpandedRegion(null)
-          setExpandedLeader(null)
-          setSelectedPokemon(null)
-        }}
-        onBerriesClick={() => {
-          setActiveSection("berries")
-          setExpandedRegion(null)
-          setExpandedLeader(null)
-          setSelectedPokemon(null)
-        }}
-        onLocateMoClick={() => {
-          setActiveSection("locateMo")
-          setExpandedRegion(null)
-          setExpandedLeader(null)
-          setSelectedPokemon(null)
-        }}
-      />
+      <SiteHeader />
 
-      {activeSection === "e4" && isE4 ? (
+      {route.section === "e4" ? (
         <>
-          <HeroSection stats={stats} activeStrategy={activeStrategy} />
+          <HeroSection stats={stats} activeStrategy={route.strategy} />
           <main id="guia" className="mx-auto max-w-6xl px-4 pb-24 sm:px-6">
         {/* Tips */}
         <div className="mb-8 rounded-2xl border border-ink-700 bg-ink-900/60 p-4">
@@ -438,28 +416,28 @@ export default function PokemonGuide() {
             />
           )}
         </>
-      ) : activeSection === "e4-lab" ? (
+      ) : route.section === "e4-lab" ? (
         <E4Lab
-          strategyName={activeStrategy === "dingxianyou" ? "Dingxianyou" : "Dingxianyou 2.0"}
+          strategyName={route.strategy === "dingxianyou" ? "Dingxianyou" : "Dingxianyou 2.0"}
           regions={regions}
         />
-      ) : activeSection === "gym" ? (
+      ) : route.section === "gym" ? (
         <main id="guia" className="pt-8">
-          <StrategyGuide key={selectedGymStrategy.id} strategy={selectedGymStrategy} category="Gym Rerun" />
+          <StrategyGuide key={route.strategy} strategy={GYM_STRATEGY_DATA[route.strategy]} category="Gym Rerun" />
         </main>
-      ) : activeSection === "red" ? (
+      ) : route.section === "red" ? (
         <main id="guia" className="pt-8">
-          <StrategyGuide key={selectedRedStrategy.id} strategy={selectedRedStrategy} category="Red Battle" />
+          <StrategyGuide key={route.strategy} strategy={RED_STRATEGY_DATA[route.strategy]} category="Red Battle" />
         </main>
-      ) : activeSection === "breeding" ? (
+      ) : route.section === "breeding" ? (
         <main id="herramientas" className="pt-8">
           <BreedingCalculator />
         </main>
-      ) : activeSection === "eggMoves" ? (
+      ) : route.section === "eggMoves" ? (
         <main id="herramientas" className="pt-8">
           <EggMovesCalculator />
         </main>
-      ) : activeSection === "locateMo" ? (
+      ) : route.section === "locateMo" ? (
         <main id="herramientas" className="pt-8">
           <LocateMO />
         </main>

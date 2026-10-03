@@ -209,9 +209,7 @@ export default function LocateMO() {
   return (
     <section className="mx-auto w-full max-w-[1168px] px-4 pb-16 pt-4 sm:px-6 lg:px-8">
       <div className="border-b border-white/15 pb-3 text-sm text-mist-400">
-        <span className="text-mist-300">Home</span>
-        <span className="mx-2">/</span>
-        <span className="text-mist-300">More</span>
+        <span className="text-mist-300">Herramientas</span>
         <span className="mx-2">/</span>
         <span>Locate MO</span>
       </div>
