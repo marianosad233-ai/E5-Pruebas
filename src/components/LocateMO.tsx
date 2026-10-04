@@ -1,4 +1,4 @@
-import { Anchor, ChevronLeft, ChevronRight, Droplets, Dumbbell, Feather, Hammer, MapPin, Scissors, Waves, X, ZoomIn } from "lucide-react"
+import { Anchor, ChevronLeft, ChevronRight, Droplets, Dumbbell, Feather, Hammer, MapPin, Scissors, Waves, X, Zap, ZoomIn } from "lucide-react"
 import { useEffect, useRef, useState, type ComponentType } from "react"
 import { LOCATE_MO_REGIONS, LOCATE_MO_SOURCE, SHOTS_BASE, type LocateMoRegion, type Shot } from "../data/locateMo"
 
@@ -180,19 +180,27 @@ function RegionGuide({ region, onOpen }: { region: LocateMoRegion; onOpen: OpenV
             </li>
           )
         })}
+
+        {region.extra && (
+          <li className="rounded-2xl border border-amber-400/30 bg-amber-400/5 p-5">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-400/20 text-xs font-bold text-amber-200">
+                MT
+              </span>
+              <h2 className="flex items-center gap-2 text-lg font-semibold text-amber-200">
+                <Zap className="h-4 w-4 text-amber-300/80" /> {region.extra.title}
+              </h2>
+            </div>
+            <Thumb title={region.extra.title} shots={region.extra.shots} onOpen={onOpen} />
+            <dl className="space-y-2.5">
+              <Row label="Quién" value={region.extra.giver} />
+              <Row label="Dónde" value={region.extra.place} />
+              <Row label="Cómo" value={region.extra.how} />
+            </dl>
+          </li>
+        )}
       </ol>
 
-      {region.extra && (
-        <div className="mt-4 rounded-2xl border border-amber-400/30 bg-amber-400/5 p-5">
-          <h2 className="mb-4 text-base font-semibold text-amber-200">{region.extra.title}</h2>
-          <Thumb title={region.extra.title} shots={region.extra.shots} onOpen={onOpen} />
-          <dl className="space-y-2.5">
-            <Row label="Quién" value={region.extra.giver} />
-            <Row label="Dónde" value={region.extra.place} />
-            <Row label="Cómo" value={region.extra.how} />
-          </dl>
-        </div>
-      )}
     </>
   )
 }

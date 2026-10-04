@@ -1,0 +1,23 @@
+{
+  "id": "nombre-de-la-raid",
+  "name": "Nombre de la raid",
+  "emoji": "⚔️",
+  "subtitle": "Nombre de la estrategia",
+  "players": 4,
+  "image": "nombre-de-la-raid.png",
+  "summary": "Estrategia · 4 jugadores · turno por turno",
+  "warning": "Aviso importante que quieras destacar (opcional).",
+  "playerLabels": ["Jugador 1", "Jugador 2", "Jugador 3", "Jugador 4"],
+  "turns": [
+    {
+      "turn": "T1",
+      "players": ["Movimiento — Pokémon", "Movimiento — Pokémon", "Movimiento — Pokémon", "Movimiento — Pokémon"],
+      "hp": "100%",
+      "reset": "RESET si ... (opcional)",
+      "note": "Nota del turno (opcional)"
+    }
+  ],
+  "notes": ["Nota general 1", "Nota general 2"],
+  "credits": "Estrategia de ... · Traducción de ...",
+  "order": 1
+}

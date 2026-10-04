@@ -22,6 +22,7 @@ import BreedingCalculator from "./BreedingCalculator"
 import EggMovesCalculator from "./EggMovesCalculator"
 import BerriesHelper from "./BerriesHelper"
 import LocateMO from "./LocateMO"
+import Raids from "./Raids"
 import E4Lab from "./E4Lab"
 import sixPillars from "../data/strategies/gym-rerun/6pillars_basic.json"
 import sevenHells from "../data/strategies/gym-rerun/lucky_girl.json"
@@ -29,7 +30,8 @@ import jinxedBoon from "../data/strategies/red-battle/red.json"
 import colored from "../data/strategies/red-battle/red_colored.json"
 import type { StrategyData } from "./StrategyGuide"
 import { useRoute } from "../hooks/useRoute"
-import { routeTitle } from "../config/routes"
+import { routeKey as getRouteKey, routeTitle } from "../config/routes"
+import { sortRegions } from "../config/regions"
 import type { GymRerunStrategyId, RedBattleStrategyId } from "../config/strategies"
 
 const GYM_STRATEGY_DATA: Record<GymRerunStrategyId, StrategyData> = {
@@ -55,7 +57,7 @@ export default function PokemonGuide() {
   const [regionsLoaded, setRegionsLoaded] = useState(false)
   const [loading, setLoading] = useState(true)
   const { route, visit } = useRoute()
-  const routeKey = "strategy" in route ? `${route.section}/${route.strategy}` : route.section
+  const routeKey = getRouteKey(route)
   const pageTitle = routeTitle(route)
 
   const detailsRef = useRef<HTMLDivElement>(null)
@@ -86,7 +88,7 @@ export default function PokemonGuide() {
     const loadRegionConfig = async () => {
       try {
         const regionConfigModule = await import("../data/config-region.json")
-        setRegions(regionConfigModule.regions || [])
+        setRegions(sortRegions(regionConfigModule.regions || []))
       } catch (error) {
         console.error("Error loading region config:", error)
       }
@@ -436,6 +438,10 @@ export default function PokemonGuide() {
       ) : route.section === "eggMoves" ? (
         <main id="herramientas" className="pt-8">
           <EggMovesCalculator />
+        </main>
+      ) : route.section === "raids" ? (
+        <main id="herramientas" className="pt-8">
+          <Raids raidId={route.raid} />
         </main>
       ) : route.section === "locateMo" ? (
         <main id="herramientas" className="pt-8">

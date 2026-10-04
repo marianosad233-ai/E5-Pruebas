@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Check, ChevronDown, Menu, X } from "lucide-react"
 import { E4_STRATEGIES, GYM_RERUN_STRATEGIES, RED_BATTLE_STRATEGIES } from "../config/strategies"
-import { TOOLS, getRememberedStrategies, hashFor, type Route } from "../config/routes"
+import { TOOLS, getRememberedStrategies, hashFor, routeKey as getRouteKey, type Route } from "../config/routes"
 import { revisitCurrentRoute, useRoute } from "../hooks/useRoute"
 
 type MenuId = "e4" | "gym" | "red" | "tools"
@@ -110,7 +110,7 @@ export const SiteHeader = () => {
   const headerRef = useRef<HTMLElement>(null)
 
   const groups = buildGroups(route)
-  const routeKey = "strategy" in route ? `${route.section}/${route.strategy}` : route.section
+  const routeKey = getRouteKey(route)
   const e4Home = groups[0].items.find((item) => item.selected)?.href ?? groups[0].items[0].href
 
   const closeAll = () => {
