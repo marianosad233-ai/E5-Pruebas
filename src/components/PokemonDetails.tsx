@@ -26,9 +26,11 @@ export const PokemonDetails = ({ pokemon }: PokemonDetailsProps) => {
         </div>
       </div>
 
-      <div className="mb-4 rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-3">
-        <p className="text-sm leading-relaxed text-amber-300">{pokemon.initialMove}</p>
-      </div>
+      {pokemon.initialMove?.trim() && (
+        <div className="mb-4 rounded-lg border border-amber-400/30 bg-amber-400/10 px-4 py-3">
+          <p className="text-sm leading-relaxed text-amber-300">{pokemon.initialMove}</p>
+        </div>
+      )}
 
       <div>
         {pokemon.tricks && pokemon.tricks.length > 0 ? (

@@ -32,7 +32,7 @@ import type { StrategyData } from "./StrategyGuide"
 import { useRoute } from "../hooks/useRoute"
 import { routeKey as getRouteKey, routeTitle } from "../config/routes"
 import { sortRegions } from "../config/regions"
-import type { GymRerunStrategyId, RedBattleStrategyId } from "../config/strategies"
+import type { GymRerunStrategyId, RedBattleStrategyId, StrategyId } from "../config/strategies"
 
 const GYM_STRATEGY_DATA: Record<GymRerunStrategyId, StrategyData> = {
   "six-pillars": sixPillars as unknown as StrategyData,
@@ -53,8 +53,7 @@ export default function PokemonGuide() {
   const [expandedLeader, setExpandedLeader] = useState<string | null>(null)
   const [selectedPokemon, setSelectedPokemon] = useState<Pokemon | null>(null)
   const [showTips, setShowTips] = useState(false)
-  const [regions, setRegions] = useState<Region[]>([])
-  const [regionsLoaded, setRegionsLoaded] = useState(false)
+  const [baseRegions, setBaseRegions] = useState<Region[]>([])
   const [loading, setLoading] = useState(true)
   const { route, visit } = useRoute()
   const routeKey = getRouteKey(route)
@@ -64,7 +63,7 @@ export default function PokemonGuide() {
   const regionSectionRef = useRef<HTMLDivElement>(null)
   const leaderSectionRef = useRef<HTMLDivElement>(null)
 
-  const { getPokemonFiles } = useDynamicImports()
+  const { getLeaderPokemons } = useDynamicImports()
 
   // Al cambiar de ruta (o volver a pulsar la misma): se limpia la selección del E4 y se sube al inicio.
   const firstRoute = useRef(true)
@@ -88,82 +87,30 @@ export default function PokemonGuide() {
     const loadRegionConfig = async () => {
       try {
         const regionConfigModule = await import("../data/config-region.json")
-        setRegions(sortRegions(regionConfigModule.regions || []))
+        setBaseRegions(sortRegions(regionConfigModule.regions || []))
       } catch (error) {
         console.error("Error loading region config:", error)
+      } finally {
+        setLoading(false)
       }
     }
 
     loadRegionConfig()
   }, [])
 
-  // Load pokemon data
-  useEffect(() => {
-    const loadPokemonData = async () => {
-      if (regions.length === 0 || regionsLoaded) return
-
-      const updatedRegions: Region[] = []
-
-      for (const region of regions) {
-        const updatedLeaders = []
-
-        for (const leader of region.leaders) {
-          try {
-            const pokemonFiles = await getPokemonFiles(region.id, leader.id)
-
-            const pokemons = await Promise.all(
-              pokemonFiles.map(async (file) => {
-                try {
-                  const module = await import(
-                    `../data/${region.id}/${leader.id}/${file.replace(".json", "")}.json`
-                  )
-
-                  const data = module.default || module
-
-                  return {
-                    ...data,
-                    id:
-                      data.id ||
-                      data.name?.toLowerCase() ||
-                      file.replace(".json", ""),
-                  }
-                } catch (error) {
-                  console.error(`Error importing ${file}:`, error)
-                  return null
-                }
-              })
-            )
-
-            updatedLeaders.push({
-              ...leader,
-              pokemons: pokemons.filter(Boolean),
-            })
-          } catch (error) {
-            console.error(
-              `Error loading pokemon data for ${leader.name}:`,
-              error
-            )
-
-            updatedLeaders.push({
-              ...leader,
-              pokemons: [],
-            })
-          }
-        }
-
-        updatedRegions.push({
-          ...region,
-          leaders: updatedLeaders,
-        })
-      }
-
-      setRegions(updatedRegions)
-      setRegionsLoaded(true)
-      setLoading(false)
-    }
-
-    loadPokemonData()
-  }, [regions, regionsLoaded, getPokemonFiles])
+  // Cada estrategia del E4 tiene su propia lista de Pokémon por líder.
+  const e4Strategy: StrategyId = route.section === "e4" || route.section === "e4-lab" ? route.strategy : "dingxianyou"
+  const regions: Region[] = useMemo(
+    () =>
+      baseRegions.map((region) => ({
+        ...region,
+        leaders: region.leaders.map((leader) => ({
+          ...leader,
+          pokemons: getLeaderPokemons(region.id, leader.id, e4Strategy),
+        })),
+      })),
+    [baseRegions, e4Strategy, getLeaderPokemons]
+  )
 
   const handleRegionClick = (regionId: string) => {
     if (expandedRegion === regionId) {
